@@ -12,6 +12,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @endif
+    @include('partials.theme-head')
     <style>[x-cloak]{display:none !important} @media print { @page { size: landscape; margin: 8mm } }</style>
 </head>
 <body class="flex min-h-screen flex-col text-slate-800 antialiased">
@@ -150,6 +151,7 @@
                                 {{ auth()->user()->role->label() }}
                             </span>
                         </div>
+                        @include('partials.theme-menu')
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button class="rounded bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700 transition hover:bg-red-600 hover:text-white hover:ring-red-500">

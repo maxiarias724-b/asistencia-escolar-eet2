@@ -9,9 +9,14 @@
     @else
         <script src="https://cdn.tailwindcss.com"></script>
     @endif
+    @include('partials.theme-head')
 </head>
 <body class="flex min-h-screen flex-col justify-between p-4 text-slate-800 antialiased">
-    <div></div>
+    <div class="text-right">
+        <button type="button" data-theme-cycle class="eet-cycle" title="Cambiar tema (claro / oscuro / automático)">
+            <span data-theme-label>☀ Claro</span>
+        </button>
+    </div>
 
     <div class="mx-auto w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
         <div class="bg-slate-900 px-6 py-5 text-center text-white">
