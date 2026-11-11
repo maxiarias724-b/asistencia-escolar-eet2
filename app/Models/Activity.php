@@ -40,6 +40,11 @@ class Activity extends Model
         return $this->hasMany(TeacherAttendance::class, 'activity_id');
     }
 
+    public function teacherClassObservations(): HasMany
+    {
+        return $this->hasMany(TeacherClassObservation::class, 'activity_id');
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);

@@ -222,6 +222,49 @@
                 <div class="w-36 border-t border-slate-500 pt-1 font-semibold">V° B° DIRECCIÓN</div>
             </div>
         </div>
+
+        {{-- Anexo Institucional: Observaciones Docentes de Clase --}}
+        <div class="mt-6 border-t-2 border-slate-300 pt-4">
+            <div class="mb-2 flex items-center justify-between">
+                <h3 class="text-xs font-extrabold uppercase tracking-wide text-slate-900">
+                    Anexo Institucional: Observaciones Docentes de Clase (Incidencias por Materia)
+                </h3>
+                <span class="text-[11px] text-slate-500">
+                    Total del mes: <strong>{{ count($sheet['teacher_observations'] ?? []) }}</strong> registro(s)
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-100 text-left text-[11px] font-bold uppercase text-slate-700">
+                            <th class="w-24 border border-slate-300 px-2.5 py-1.5">Fecha</th>
+                            <th class="w-56 border border-slate-300 px-2.5 py-1.5">Alumno</th>
+                            <th class="w-48 border border-slate-300 px-2.5 py-1.5">Materia</th>
+                            <th class="w-48 border border-slate-300 px-2.5 py-1.5">Docente</th>
+                            <th class="border border-slate-300 px-2.5 py-1.5">Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($sheet['teacher_observations'] ?? [] as $tObs)
+                            <tr class="hover:bg-slate-50">
+                                <td class="border border-slate-300 px-2.5 py-1.5 font-mono">{{ $tObs['date_formatted'] }}</td>
+                                <td class="border border-slate-300 px-2.5 py-1.5 font-semibold text-slate-900">{{ $tObs['student_name'] }}</td>
+                                <td class="border border-slate-300 px-2.5 py-1.5">{{ $tObs['activity_name'] }}</td>
+                                <td class="border border-slate-300 px-2.5 py-1.5">{{ $tObs['teacher_name'] }}</td>
+                                <td class="border border-slate-300 px-2.5 py-1.5 text-slate-700">{{ $tObs['observation_text'] }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="border border-slate-300 px-3 py-3 text-center text-xs text-slate-500">
+                                    Sin observaciones docentes de clase registradas en este curso durante el período seleccionado.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 @endif
 @endsection

@@ -27,6 +27,7 @@ use App\Http\Controllers\QrInterventionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RosterController;
 use App\Http\Controllers\TeacherAttendanceController;
+use App\Http\Controllers\TeacherObservationController;
 use Illuminate\Support\Facades\Route;
 
 /* ------------------------------ Autenticación ------------------------------ */
@@ -226,5 +227,14 @@ Route::middleware('auth')->group(function () {
         Route::put('/{qrIntervention}', [QrInterventionController::class, 'update'])
             ->whereNumber('qrIntervention')
             ->name('update');
+    });
+
+    /* ------------- Módulo de Observaciones Docentes en Asistencia (Actualización 1.2) ------------- */
+    Route::middleware(['active.user', 'role:docente,director'])->prefix('teacher-observations')->name('teacher-observations.')->group(function () {
+        Route::get('/', [TeacherObservationController::class, 'index'])->name('index');
+        Route::post('/', [TeacherObservationController::class, 'store'])->name('store');
+        Route::delete('/{teacherObservation}', [TeacherObservationController::class, 'destroy'])
+            ->whereNumber('teacherObservation')
+            ->name('destroy');
     });
 });

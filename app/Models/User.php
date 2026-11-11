@@ -100,6 +100,11 @@ class User extends Authenticatable
         return $this->hasMany(QrIntervention::class, 'initiated_by');
     }
 
+    public function teacherClassObservations(): HasMany
+    {
+        return $this->hasMany(TeacherClassObservation::class, 'teacher_id');
+    }
+
     /* ------------------------------- Helpers ------------------------------ */
 
     /**

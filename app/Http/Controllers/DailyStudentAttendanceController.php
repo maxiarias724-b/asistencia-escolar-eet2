@@ -65,17 +65,26 @@ class DailyStudentAttendanceController extends Controller
         $existingByStudent = collect();
 
         if ($course && $scope) {
+            $dateYmd = $date->toDateString();
+
             $students = Student::query()
                 ->where('course_id', $course->id)
                 ->where('status', StudentStatus::Activo->value)
                 ->where('active', true)
+                ->with([
+                    'teacherClassObservations' => function ($q) use ($dateYmd): void {
+                        $q->where('date', $dateYmd)
+                            ->with(['teacher:id,name', 'activity:id,name'])
+                            ->orderByDesc('id');
+                    },
+                ])
                 ->alphabetical()
                 ->get();
 
             $existingByStudent = Attendance::query()
                 ->where('course_id', $course->id)
                 ->where('activity_type', $scope->slug)
-                ->where('date', $date->toDateString())
+                ->where('date', $dateYmd)
                 ->with(['justification.justifiedBy', 'recorder'])
                 ->get()
                 ->keyBy('student_id');
@@ -89,6 +98,7 @@ class DailyStudentAttendanceController extends Controller
 
         return view('attendance.daily-students', [
             'date' => $date,
+            'fechaActual' => $date,
             'today' => now()->startOfDay(),
             'isFuture' => $isFuture,
             'isWorkingDay' => $isWorkingDay,

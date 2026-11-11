@@ -9,6 +9,7 @@ use App\Models\Attendance;
 use App\Models\Course;
 use App\Models\Scope;
 use App\Models\Student;
+use App\Models\TeacherClassObservation;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -68,7 +69,39 @@ class MonthlyRegister
 
         $previous = $this->previousAbsences($course, $activity, $month);
 
-        $rows = $students->map(fn (Student $s) => $this->row($s, $byStudent->get($s->id, collect()), $previous[$s->id] ?? 0, $baseDays, $course, $activity))->values();
+        $teacherObservations = TeacherClassObservation::query()
+            ->whereIn('student_id', $students->pluck('id')->all())
+            ->where('date', '>=', $month->toDateString())
+            ->where('date', '<=', $end->toDateString())
+            ->with(['student:id,last_name,first_name,dni', 'teacher:id,name', 'activity:id,name'])
+            ->orderBy('date')
+            ->orderBy('id')
+            ->get();
+
+        $teacherObsByStudent = $teacherObservations->groupBy('student_id');
+
+        $rows = $students->map(fn (Student $s) => $this->row(
+            $s,
+            $byStudent->get($s->id, collect()),
+            $teacherObsByStudent->get($s->id, collect()),
+            $previous[$s->id] ?? 0,
+            $baseDays,
+            $course,
+            $activity
+        ))->values();
+
+        $mappedTeacherObservations = $teacherObservations->map(fn (TeacherClassObservation $obs) => [
+            'id' => $obs->id,
+            'date' => $obs->date?->toDateString(),
+            'date_formatted' => $obs->date?->format('d/m/Y') ?? '',
+            'day' => $obs->date?->day,
+            'student_id' => $obs->student_id,
+            'student_name' => $obs->student ? ($obs->student->last_name.', '.$obs->student->first_name) : 'Estudiante #'.$obs->student_id,
+            'student_dni' => $obs->student?->dni ?? '',
+            'activity_name' => $obs->activity?->name ?? 'General / Sin materia específica',
+            'teacher_name' => $obs->teacher?->name ?? 'Docente',
+            'observation_text' => $obs->observation_text,
+        ])->values()->all();
 
         $datesWithRecords = $attendances->map(fn ($a) => $a->date->toDateString())->unique();
         $pending = $rows->isEmpty() ? [] : $workingDays
@@ -90,6 +123,7 @@ class MonthlyRegister
             'working_days' => $workingDays->count(),
             'base_days' => $baseDays,
             'rows' => $rows->all(),
+            'teacher_observations' => $mappedTeacherObservations,
             'pending_days' => $pending,
             'footer' => [
                 'enrolled' => $students->count(),
@@ -104,7 +138,7 @@ class MonthlyRegister
         ];
     }
 
-    private function row(Student $student, Collection $records, float $previous, int $baseDays, Course $course, ActivityType|DynamicValue $activity): array
+    private function row(Student $student, Collection $records, Collection $teacherObs, float $previous, int $baseDays, Course $course, ActivityType|DynamicValue $activity): array
     {
         $cells = [];
         $justified = 0.0;
@@ -123,6 +157,13 @@ class MonthlyRegister
             if (filled($a->observation)) {
                 $observations[] = $a->date->day.': '.$a->observation;
             }
+        }
+
+        foreach ($teacherObs->sortBy('date') as $tObs) {
+            $dayNum = $tObs->date?->day;
+            $subjectLabel = $tObs->activity?->name ?? 'General';
+            $teacherLabel = $tObs->teacher?->name ?? 'Docente';
+            $observations[] = "{$dayNum} [Doc. {$teacherLabel} - {$subjectLabel}]: {$tObs->observation_text}";
         }
 
         $total = $justified + $unjustified;

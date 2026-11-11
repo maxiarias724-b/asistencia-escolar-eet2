@@ -71,6 +71,11 @@ class Student extends Model
         return $this->hasMany(QrIntervention::class);
     }
 
+    public function teacherClassObservations(): HasMany
+    {
+        return $this->hasMany(TeacherClassObservation::class);
+    }
+
     /** "APELLIDO, Nombre" como se muestra en las nóminas de SINIDE. */
     protected function fullName(): Attribute
     {

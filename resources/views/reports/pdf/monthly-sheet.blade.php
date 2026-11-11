@@ -23,6 +23,10 @@
         table.summary-box { border-collapse: collapse; width: 185px; font-size: 7.5px; }
         table.summary-box td { border: 1px solid #334155; padding: 2px 5px; }
         .sig-line { border-top: 1px solid #0f172a; width: 145px; margin: 0 auto; padding-top: 3px; text-align: center; font-weight: bold; font-size: 7.5px; }
+        .annex-title { font-size: 8px; font-weight: bold; text-transform: uppercase; margin: 10px 0 3px 0; }
+        table.annex { width: 100%; border-collapse: collapse; font-size: 7px; }
+        table.annex th, table.annex td { border: 1px solid #334155; padding: 2px 4px; text-align: left; vertical-align: top; }
+        table.annex th { background-color: #e2e8f0; font-weight: bold; text-transform: uppercase; font-size: 6.8px; }
     </style>
 </head>
 <body>
@@ -118,6 +122,36 @@
                     <div class="sig-line">V° B°</div>
                 </td>
             </tr>
+        </tbody>
+    </table>
+
+    <div class="annex-title">ANEXO INSTITUCIONAL: OBSERVACIONES DOCENTES DE CLASE (INCIDENCIAS POR MATERIA)</div>
+    <table class="annex">
+        <thead>
+            <tr>
+                <th style="width: 58px;">Fecha</th>
+                <th style="width: 165px;">Alumno</th>
+                <th style="width: 135px;">Materia</th>
+                <th style="width: 135px;">Docente</th>
+                <th>Observación</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($sheet['teacher_observations'] ?? [] as $tObs)
+                <tr>
+                    <td>{{ $tObs['date_formatted'] }}</td>
+                    <td><strong>{{ $tObs['student_name'] }}</strong></td>
+                    <td>{{ $tObs['activity_name'] }}</td>
+                    <td>{{ $tObs['teacher_name'] }}</td>
+                    <td>{{ $tObs['observation_text'] }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #64748b;">
+                        Sin observaciones docentes registradas en el período.
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </body>

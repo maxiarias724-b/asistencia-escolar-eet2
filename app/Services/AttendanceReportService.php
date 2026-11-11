@@ -379,6 +379,25 @@ class AttendanceReportService
             $rows[] = $line;
         }
 
+        // Anexo Institucional al pie de la Planilla Mensual: Observaciones Docentes de Clase
+        $rows[] = [];
+        $rows[] = ['ANEXO INSTITUCIONAL: OBSERVACIONES DOCENTES DE CLASE (INCIDENCIAS POR MATERIA)'];
+        $rows[] = ['Fecha', 'Alumno', 'Materia', 'Docente', 'Observación'];
+
+        if (! empty($sheet['teacher_observations'])) {
+            foreach ($sheet['teacher_observations'] as $tObs) {
+                $rows[] = [
+                    $tObs['date_formatted'] ?? '',
+                    $tObs['student_name'] ?? '',
+                    $tObs['activity_name'] ?? '',
+                    $tObs['teacher_name'] ?? '',
+                    $tObs['observation_text'] ?? '',
+                ];
+            }
+        } else {
+            $rows[] = ['Sin observaciones docentes registradas en el período.', '', '', '', ''];
+        }
+
         return $format === 'csv'
             ? $this->spreadsheetWriter->downloadCsv($baseName, $headers, $rows)
             : $this->spreadsheetWriter->downloadXlsx($baseName, $headers, $rows, 'Planilla '.$month->format('m-Y'));

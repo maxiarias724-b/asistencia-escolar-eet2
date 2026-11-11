@@ -95,6 +95,15 @@
                                 <span>Dashboard</span>
                             </a>
 
+                            {{-- Nómina y Observaciones de Clase (Exclusivo Rol Docente en barra principal) --}}
+                            @if ($u->isDocente())
+                                <a href="{{ route('teacher-observations.index') }}"
+                                   @mouseenter="activeMenu = null"
+                                   class="eet-nav-item {{ request()->routeIs('teacher-observations.*') ? 'eet-nav-item-active' : 'eet-nav-item-idle' }}">
+                                    <span>Observaciones de Clase</span>
+                                </a>
+                            @endif
+
                             {{-- Amonestaciones (Disciplina: Director, Preceptor/Operador y Docente según Policy) --}}
                             @can('viewAny', \App\Models\DisciplinaryRecord::class)
                                 <a href="{{ route('disciplinary.index') }}"
@@ -363,6 +372,9 @@
                      x-transition:enter-end="opacity-100 translate-y-0"
                      class="max-h-[calc(100vh-3.75rem)] space-y-1 overflow-y-auto border-t border-slate-800 pb-3 pt-2 text-sm lg:hidden">
                     <a href="{{ route('home') }}" class="block rounded px-3 py-1.5 hover:bg-slate-800">Dashboard</a>
+                    @if ($u->isDocente())
+                        <a href="{{ route('teacher-observations.index') }}" class="block rounded px-3 py-1.5 hover:bg-slate-800">Observaciones de Clase</a>
+                    @endif
                     @can('viewAny', \App\Models\DisciplinaryRecord::class)
                         <a href="{{ route('disciplinary.index') }}" class="block rounded px-3 py-1.5 hover:bg-slate-800">Amonestaciones (Disciplina)</a>
                     @endcan

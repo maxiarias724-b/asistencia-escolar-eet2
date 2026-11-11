@@ -2,9 +2,28 @@
 @section('title', 'Toma de Asistencia Diaria — Estudiantes')
 
 @php
-    $initialRows = $students->map(function ($st) use ($existingByStudent, $scope, $course) {
+    $fechaActual = $fechaActual ?? $date;
+    $totalTeacherObsCount = 0;
+
+    $initialRows = $students->map(function ($st) use ($existingByStudent, $scope, $course, $fechaActual, &$totalTeacherObsCount) {
         $att = $existingByStudent->get($st->id);
         $just = $att?->justification;
+        $dayObs = $st->teacherClassObservations->where('date', $fechaActual)->values();
+        $totalTeacherObsCount += $dayObs->count();
+
+        $mappedObs = $dayObs->map(fn ($obs) => [
+            'id' => $obs->id,
+            'teacher_name' => $obs->teacher?->name ?? 'Docente',
+            'activity_name' => $obs->activity?->name ?? 'General / Sin materia específica',
+            'date_formatted' => $obs->date?->format('d/m/Y') ?? $fechaActual->format('d/m/Y'),
+            'observation_text' => $obs->observation_text,
+            'created_at_human' => $obs->created_at?->format('H:i') ?? '',
+        ])->all();
+
+        $tooltipLines = collect($mappedObs)->map(
+            fn (array $o) => "[{$o['activity_name']} · Prof. {$o['teacher_name']}]: {$o['observation_text']}"
+        )->implode("\n");
+
         return [
             'student_id' => $st->id,
             'full_name' => $st->full_name,
@@ -21,6 +40,9 @@
             'certificate_url' => ($att && $just?->hasCertificate() && $scope && $course)
                 ? route('attendance.certificate', ['activity' => $scope->slug, 'course' => $course->id, 'attendance' => $att->id])
                 : null,
+            'has_teacher_observations' => $dayObs->count() > 0,
+            'teacher_observations' => $mappedObs,
+            'teacher_observations_tooltip' => $tooltipLines,
         ];
     })->values()->all();
 
@@ -177,6 +199,11 @@
                             Tomada por: <strong class="font-semibold text-slate-900">{{ implode(', ', $courseRecorders) }}</strong>
                         </span>
                     @endif
+                    @if ($totalTeacherObsCount > 0)
+                        <span class="ml-1 inline-flex items-center gap-1 rounded-full border border-amber-400 bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900">
+                            ⚠️ {{ $totalTeacherObsCount }} Observación(es) Docente(s) en la fecha
+                        </span>
+                    @endif
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3 text-xs">
@@ -196,6 +223,30 @@
                 </div>
             </div>
 
+            @if ($totalTeacherObsCount > 0)
+                <div class="border-b border-amber-200 bg-amber-50/90 px-4 py-3 text-xs text-amber-950">
+                    <div class="mb-1.5 flex items-center gap-1.5 font-bold text-amber-900">
+                        <span>⚠️ Alerta de Observaciones Docentes reportadas hoy ({{ $date->format('d/m/Y') }}):</span>
+                    </div>
+                    <div class="grid grid-cols-1 gap-1.5 md:grid-cols-2">
+                        @foreach ($students as $student)
+                            @if ($student->teacherClassObservations->where('date', $fechaActual)->count() > 0)
+                                @foreach ($student->teacherClassObservations->where('date', $fechaActual) as $tObsItem)
+                                    <div class="flex items-start justify-between gap-2 rounded border border-amber-300 bg-white px-2.5 py-1.5 shadow-sm">
+                                        <div>
+                                            <span class="inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-900">⚠️ Observación Docente</span>
+                                            <strong class="ml-1 text-slate-900">{{ $student->full_name }}</strong>
+                                            <span class="text-slate-600">· {{ $tObsItem->activity?->name ?? 'General' }} ({{ $tObsItem->teacher?->name ?? 'Docente' }}):</span>
+                                            <span class="text-slate-800">{{ $tObsItem->observation_text }}</span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead class="bg-slate-100 text-left text-xs uppercase text-slate-600">
@@ -213,11 +264,33 @@
                             <tr class="hover:bg-slate-50/70">
                                 <td class="px-3 py-2 font-mono text-xs text-slate-400" x-text="idx + 1"></td>
                                 <td class="px-3 py-2 font-semibold text-slate-900">
-                                    <span x-text="row.full_name"></span>
-                                    <template x-if="row.status === 'justificada'">
-                                        <span class="ml-1 inline-block rounded bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold text-sky-800">
-                                            Respaldo cargado ✓
-                                        </span>
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span x-text="row.full_name"></span>
+                                        <template x-if="row.status === 'justificada'">
+                                            <span class="inline-block rounded bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold text-sky-800">
+                                                Respaldo cargado ✓
+                                            </span>
+                                        </template>
+                                        <template x-if="row.teacher_observations && row.teacher_observations.length > 0">
+                                            <button type="button"
+                                                    @click="openTeacherObsModal(row)"
+                                                    :title="row.teacher_observations_tooltip"
+                                                    class="inline-flex items-center gap-1 rounded-full border border-amber-400 bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-900 shadow-sm transition hover:bg-amber-200">
+                                                <span>⚠️ Observación Docente</span>
+                                                <span class="rounded-full bg-amber-800 px-1.5 text-[10px] text-white" x-text="row.teacher_observations.length"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                    <template x-if="row.teacher_observations && row.teacher_observations.length > 0">
+                                        <div class="mt-1 space-y-1">
+                                            <template x-for="tObs in row.teacher_observations" :key="tObs.id">
+                                                <div @click="openTeacherObsModal(row)"
+                                                     class="cursor-pointer rounded border border-amber-200 bg-amber-50/80 px-2 py-1 text-[11px] font-normal text-amber-950 hover:bg-amber-100/80">
+                                                    <span class="font-semibold" x-text="tObs.activity_name + ' (' + tObs.teacher_name + '):'"></span>
+                                                    <span x-text="tObs.observation_text"></span>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </template>
                                 </td>
                                 <td class="px-3 py-2 font-mono text-xs text-slate-600">
@@ -347,6 +420,88 @@
         </div>
     </div>
 
+    {{-- Modal de Alerta y Detalle de Observaciones Docentes para el Preceptor --}}
+    <div x-show="teacherObsModal.open" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-[1px]"
+         role="dialog" aria-modal="true"
+         @keydown.escape.window="teacherObsModal.open = false">
+        <div @click.outside="teacherObsModal.open = false"
+             class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-2xl">
+            <div class="flex items-center justify-between border-b-2 border-[#dc2626] bg-[#111318] px-5 py-3.5 text-white">
+                <div>
+                    <h2 class="text-base font-bold text-white">⚠️ Observación Docente Reportada</h2>
+                    <p class="text-xs text-[#8cf064]" x-text="(teacherObsModal.row?.full_name || '') + ' · {{ $date->format('d/m/Y') }}'"></p>
+                </div>
+                <button type="button" @click="teacherObsModal.open = false"
+                        class="rounded-md p-1 text-slate-300 hover:bg-white/10 hover:text-white">&times;</button>
+            </div>
+
+            <div class="p-5 space-y-3">
+                <p class="text-xs text-slate-600">
+                    El cuerpo docente registró la(s) siguiente(s) novedad(es) de asistencia en sus horas de clase para este estudiante:
+                </p>
+
+                <template x-for="obs in (teacherObsModal.row?.teacher_observations || [])" :key="obs.id">
+                    <div class="rounded-lg border border-amber-300 bg-amber-50/90 p-3 text-xs text-slate-800">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/80 pb-1.5">
+                            <span class="font-bold text-amber-950" x-text="obs.activity_name"></span>
+                            <span class="text-[11px] font-medium text-slate-600"
+                                  x-text="'Docente: ' + obs.teacher_name + (obs.created_at_human ? ' · ' + obs.created_at_human + ' hs' : '')"></span>
+                        </div>
+                        <p class="mt-2 whitespace-pre-line text-sm text-slate-900" x-text="obs.observation_text"></p>
+                        <div class="mt-2 flex justify-end">
+                            <button type="button"
+                                    @click="copyTeacherObsToDaily(teacherObsModal.row, obs)"
+                                    class="rounded border border-amber-400 bg-white px-2.5 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-100">
+                                📋 Copiar texto a observación oficial del día
+                            </button>
+                        </div>
+                    </div>
+                </template>
+
+                @if ($canEditDay)
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                            Acción rápida del Preceptor sobre el estado oficial:
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button"
+                                    @click="applyStatusFromTeacherObs('ausente')"
+                                    class="rounded bg-red-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-700">
+                                Marcar Ausente (A)
+                            </button>
+                            <button type="button"
+                                    @click="applyStatusFromTeacherObs('media_falta')"
+                                    class="rounded bg-orange-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-orange-700">
+                                Marcar ½ Falta (M)
+                            </button>
+                            <button type="button"
+                                    @click="applyStatusFromTeacherObs('tardanza')"
+                                    class="rounded bg-amber-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-600">
+                                Marcar Tardanza (T)
+                            </button>
+                            <button type="button"
+                                    @click="applyStatusFromTeacherObs('presente')"
+                                    class="rounded bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">
+                                Mantener Presente (P)
+                            </button>
+                        </div>
+                        <p class="mt-1.5 text-[11px] text-slate-500">
+                            Luego de ajustar el estado, presioná <strong>«Guardar / Actualizar asistencia del día»</strong> al pie de la planilla para confirmar el cambio.
+                        </p>
+                    </div>
+                @endif
+
+                <div class="flex justify-end pt-1">
+                    <button type="button" @click="teacherObsModal.open = false"
+                            class="rounded-md bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white hover:bg-slate-800">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div x-show="toast" x-transition class="fixed bottom-4 right-4 z-50 rounded bg-slate-900 px-4 py-2 text-xs font-medium text-white shadow-lg" x-text="toast"></div>
 </div>
 @endsection
@@ -367,6 +522,7 @@ function dailyStudentAttendance(init) {
         justifyUrl: init.justifyUrl,
         toast: null,
         justModal: { open: false, row: null, reason: '', file: null, removeCert: false, existingCertUrl: null, error: '', saving: false },
+        teacherObsModal: { open: false, row: null },
 
         get availableShifts() {
             const seen = {};
@@ -421,6 +577,24 @@ function dailyStudentAttendance(init) {
         markAllPresent() {
             if (!this.canEditDay) return;
             this.rows.forEach(r => { if (r.status !== 'justificada') r.status = 'presente'; });
+        },
+
+        openTeacherObsModal(row) {
+            this.teacherObsModal = { open: true, row };
+        },
+        copyTeacherObsToDaily(row, obs) {
+            if (!this.canEditDay || !row || !obs) return;
+            const snippet = `[${obs.activity_name} - Prof. ${obs.teacher_name}]: ${obs.observation_text}`;
+            row.observation = row.observation ? `${row.observation} | ${snippet}` : snippet;
+            this.toast = 'Observación docente copiada al registro del día.';
+            setTimeout(() => this.toast = null, 3000);
+        },
+        applyStatusFromTeacherObs(status) {
+            if (!this.canEditDay || !this.teacherObsModal.row) return;
+            this.teacherObsModal.row.status = status;
+            this.teacherObsModal.open = false;
+            this.toast = 'Estado actualizado en la fila. Recordá guardar la planilla del día.';
+            setTimeout(() => this.toast = null, 3500);
         },
 
         openJustifyModal(row) {
