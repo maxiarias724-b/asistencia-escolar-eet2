@@ -43,7 +43,7 @@ class DailyStudentAttendanceController extends Controller
             ? Carbon::createFromFormat('Y-m-d', $request->string('date')->toString())->startOfDay()
             : now()->startOfDay();
 
-        $catalog = $this->buildChainedCatalog($user);
+        $catalog = $this->buildChainedCatalog($user, $date);
 
         $selectedCourseId = $request->integer('course_id') ?: ($catalog['combinations'][0]['course_id'] ?? null);
         $selectedScopeId = $request->integer('scope_id') ?: ($catalog['combinations'][0]['scope_id'] ?? null);
@@ -178,7 +178,7 @@ class DailyStudentAttendanceController extends Controller
      * Construye el catálogo de combinaciones válidas (`Turno -> Ámbito -> Curso -> Actividades`)
      * respetando estrictamente las asignaciones del Operador o habilitando todo para el Director.
      */
-    private function buildChainedCatalog($user): array
+    private function buildChainedCatalog($user, Carbon $date): array
     {
         $activitiesByScope = Activity::active()->ordered()->get()->groupBy('scope_id')->map(
             fn ($items) => $items->map(fn (Activity $a) => ['id' => $a->id, 'name' => $a->name])->values()->all()
@@ -231,6 +231,29 @@ class DailyStudentAttendanceController extends Controller
                 ];
             }
         }
+
+        $courseIds = collect($combinations)->pluck('course_id')->unique()->values();
+        $recordedByCourseActivity = $courseIds->isEmpty()
+            ? collect()
+            : Attendance::query()
+                ->whereIn('course_id', $courseIds)
+                ->where('date', $date->toDateString())
+                ->selectRaw('course_id, activity_type, COUNT(*) as recorded')
+                ->groupBy('course_id', 'activity_type')
+                ->get()
+                ->mapWithKeys(function ($row) {
+                    $slug = (string) ($row->getRawOriginal('activity_type') ?? $row->activity_type->value ?? $row->activity_type);
+
+                    return ["{$row->course_id}:{$slug}" => (int) $row->recorded];
+                });
+
+        foreach ($combinations as &$combo) {
+            $key = "{$combo['course_id']}:{$combo['scope_slug']}";
+            $recordedCount = (int) ($recordedByCourseActivity[$key] ?? 0);
+            $combo['taken'] = $recordedCount > 0;
+            $combo['recorded_count'] = $recordedCount;
+        }
+        unset($combo);
 
         return [
             'combinations' => $combinations,

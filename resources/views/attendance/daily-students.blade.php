@@ -88,7 +88,7 @@
                 <select name="course_id" x-model="courseId"
                         class="mt-1 block w-full rounded border border-slate-300 bg-white px-2.5 py-2 text-sm">
                     <template x-for="co in availableCourses" :key="co.id">
-                        <option :value="co.id" x-text="co.name" :selected="co.id == courseId"></option>
+                        <option :value="co.id" x-text="co.label" :selected="co.id == courseId"></option>
                     </template>
                 </select>
             </label>
@@ -147,12 +147,21 @@
             <input type="hidden" name="activity_id" :value="activityId">
 
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-4 py-3">
-                <div class="text-sm">
+                <div class="flex flex-wrap items-center gap-1.5 text-sm">
                     <span class="font-bold text-slate-900">{{ $course->full_name }}</span>
-                    <span class="mx-1 text-slate-400">·</span>
+                    <span class="mx-0.5 text-slate-400">·</span>
                     <span class="rounded bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-800">{{ $scope->name }}</span>
-                    <span class="mx-1 text-slate-400">·</span>
+                    <span class="mx-0.5 text-slate-400">·</span>
                     <span class="font-medium text-slate-700">{{ $date->translatedFormat('l d/m/Y') }}</span>
+                    @if ($existingByStudent->isNotEmpty())
+                        <span class="ml-1 inline-flex items-center gap-1 rounded border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                            ✓ Asistencia tomada ({{ $existingByStudent->count() }}/{{ $students->count() }})
+                        </span>
+                    @else
+                        <span class="ml-1 inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                            ⏳ Registro pendiente
+                        </span>
+                    @endif
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3 text-xs">
@@ -244,10 +253,16 @@
             </div>
 
             @if ($canEditDay)
-                <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-3">
-                    <span class="text-xs text-slate-500">Recordá que las justificaciones (IJ) se guardan al instante desde su modal con respaldo obligatorio.</span>
-                    <button class="rounded bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
-                        Guardar asistencia del día
+                <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3">
+                    <span class="text-xs text-slate-500">
+                        @if ($existingByStudent->isNotEmpty())
+                            <strong class="text-emerald-700">✓ Asistencia ya registrada para esta fecha ({{ $existingByStudent->count() }}/{{ $students->count() }}).</strong> Podés modificar estados y volver a guardar.
+                        @else
+                            Recordá que las justificaciones (IJ) se guardan al instante desde su modal con respaldo obligatorio.
+                        @endif
+                    </span>
+                    <button class="rounded {{ $existingByStudent->isNotEmpty() ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700' }} px-5 py-2 text-sm font-semibold text-white shadow-sm">
+                        {{ $existingByStudent->isNotEmpty() ? '✓ Actualizar asistencia del día' : 'Guardar asistencia del día' }}
                     </button>
                 </div>
             @endif
@@ -335,7 +350,13 @@ function dailyStudentAttendance(init) {
             const seen = {};
             return this.catalog.combinations
                 .filter(c => (!this.shiftId || c.shift_id == this.shiftId) && (!this.scopeId || c.scope_id == this.scopeId) && !seen[c.course_id] && (seen[c.course_id] = true))
-                .map(c => ({ id: c.course_id, name: c.course_name }));
+                .map(c => ({
+                    id: c.course_id,
+                    name: c.course_name,
+                    taken: !!c.taken,
+                    recorded_count: c.recorded_count ?? 0,
+                    label: c.course_name + (c.taken ? ' · ✓ Asistencia tomada' : ' · ⏳ Registro pendiente'),
+                }));
         },
         get availableActivities() {
             return this.catalog.activities_by_scope[this.scopeId] ?? [];

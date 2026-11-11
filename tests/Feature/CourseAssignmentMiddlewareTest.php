@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Enums\ActivityType;
 use App\Enums\Role;
 use App\Http\Middleware\CheckCourseAssignment;
+use App\Models\Attendance;
 use App\Models\Course;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -153,5 +155,57 @@ class CourseAssignmentMiddlewareTest extends TestCase
     public function test_role_enum_is_cast(): void
     {
         $this->assertSame(Role::Operador, $this->operador->role);
+    }
+
+    public function test_operator_home_and_daily_attendance_distinguish_taken_vs_pending_courses(): void
+    {
+        $c31 = Course::create(['year' => 3, 'division' => '1', 'shift' => 'manana']);
+        $this->operador->assignCourse($c31, ActivityType::Clase);
+
+        $student31 = Student::create([
+            'course_id' => $c31->id,
+            'last_name' => 'Gómez',
+            'first_name' => 'Lautaro',
+            'dni' => '45111222',
+            'status' => 'activo',
+            'active' => true,
+        ]);
+
+        Student::create([
+            'course_id' => $this->c51->id,
+            'last_name' => 'Pérez',
+            'first_name' => 'Sofía',
+            'dni' => '44333444',
+            'status' => 'activo',
+            'active' => true,
+        ]);
+
+        Attendance::create([
+            'student_id' => $student31->id,
+            'course_id' => $c31->id,
+            'user_id' => $this->operador->id,
+            'date' => now()->toDateString(),
+            'activity_type' => ActivityType::Clase->value,
+            'status' => 'presente',
+        ]);
+
+        $response = $this->actingAs($this->operador)->get(route('operator.home'));
+        $response->assertOk()
+            ->assertViewHas('takenCoursesCount', 1)
+            ->assertViewHas('pendingCoursesCount', 1)
+            ->assertSee('Asistencia tomada')
+            ->assertSee('Tomada · Editar')
+            ->assertSee('Registro pendiente')
+            ->assertSee('1/1 reg.');
+
+        $statusMap = $response->viewData('statusByAssignment');
+        $this->assertTrue($statusMap["{$c31->id}:clase"]['taken']);
+        $this->assertFalse($statusMap["{$this->c51->id}:clase"]['taken']);
+
+        $dailyResponse = $this->actingAs($this->operador)->get(route('attendance.daily', [
+            'course_id' => $c31->id,
+        ]));
+        $dailyResponse->assertOk()
+            ->assertSee('Asistencia tomada (1/1)');
     }
 }
