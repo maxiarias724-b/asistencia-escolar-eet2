@@ -14,7 +14,35 @@
     @endif
     @include('partials.theme-head')
     @include('partials.pwa-head')
-    <style>[x-cloak]{display:none !important} @media print { @page { size: landscape; margin: 8mm } }</style>
+    <style>
+        [x-cloak]{display:none !important}
+        @media print { @page { size: landscape; margin: 8mm } }
+        .eet-navbar { font-size: 13px; line-height: 1.25; }
+        .eet-navbar .eet-nav-item {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            white-space: nowrap; flex-shrink: 0;
+            padding: 0.375rem 0.55rem; border-radius: 0.375rem;
+            font-size: 12.5px; font-weight: 500; line-height: 1.2;
+            transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+        }
+        @media (min-width: 1280px) {
+            .eet-navbar .eet-nav-item { padding: 0.4rem 0.7rem; font-size: 13px; gap: 0.35rem; }
+        }
+        .eet-navbar .eet-nav-item-active {
+            background-color: rgba(30, 41, 59, 0.95); color: #fcd34d;
+            box-shadow: inset 0 -2px 0 0 #f59e0b;
+        }
+        .eet-navbar .eet-nav-item-idle { color: #e2e8f0; }
+        .eet-navbar .eet-nav-item-idle:hover { background-color: rgba(30, 41, 59, 0.8); color: #ffffff; }
+        .eet-navbar .eet-dropdown-link {
+            display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+            padding: 0.5rem 0.875rem; font-size: 12.5px; line-height: 1.3;
+            color: #e2e8f0; white-space: nowrap;
+            transition: background-color 120ms ease, color 120ms ease, padding-left 120ms ease;
+        }
+        .eet-navbar .eet-dropdown-link:hover { background-color: #334155; color: #ffffff; padding-left: 1rem; }
+        .eet-navbar .eet-dropdown-link-active { background-color: rgba(245, 158, 11, 0.14); color: #fcd34d; font-weight: 600; }
+    </style>
 </head>
 <body class="flex min-h-screen flex-col text-slate-800 antialiased">
 
@@ -28,14 +56,14 @@
          @click.outside="activeMenu = null"
          @keydown.escape.window="activeMenu = null; mobileOpen = false"
          class="eet-navbar sticky top-0 z-40 border-b border-slate-800 bg-slate-900/95 text-slate-100 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-slate-900/90 print:hidden">
-        <div class="mx-auto max-w-7xl px-3 sm:px-4">
-            <div class="flex h-14 items-center justify-between gap-2">
+        <div class="mx-auto max-w-[1440px] px-3 sm:px-5">
+            <div class="flex h-14 items-center justify-between gap-4">
 
                 {{-- Marca Institucional + Navegación Principal --}}
-                <div class="flex min-w-0 items-center gap-2 xl:gap-3">
+                <div class="flex shrink-0 items-center gap-2 xl:gap-3">
                     <a href="{{ route('home') }}"
-                       class="group flex shrink-0 items-center gap-2 rounded-md py-1 pr-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">
-                        <span class="shrink-0 whitespace-nowrap rounded bg-amber-500 px-2 py-1 text-[11px] font-extrabold uppercase leading-none tracking-wide text-slate-950 shadow-sm transition group-hover:bg-amber-400">
+                       class="group flex shrink-0 items-center gap-2 rounded-md py-1 pr-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">
+                        <span class="shrink-0 whitespace-nowrap rounded bg-amber-500 px-2.5 py-1 text-[11px] font-extrabold uppercase leading-none tracking-wide text-slate-950 shadow-sm transition group-hover:bg-amber-400">
                             EET N° 2
                         </span>
                         <span class="hidden flex-col leading-tight 2xl:flex">
@@ -48,7 +76,7 @@
                         @php $u = auth()->user(); @endphp
                         <div class="hidden h-5 w-px shrink-0 bg-slate-800 lg:block" aria-hidden="true"></div>
 
-                        <div class="hidden items-center gap-0.5 xl:gap-1 lg:flex">
+                        <div class="hidden shrink-0 items-center gap-1 lg:flex">
                             {{-- Dashboard --}}
                             <a href="{{ route('home') }}"
                                @mouseenter="activeMenu = null"
@@ -300,22 +328,9 @@
                     @endauth
                 </div>
 
-                {{-- Perfil de Usuario Compacto + Menú Desplegable (☰) --}}
+                {{-- Botón Unificado de Usuario y Menú (sin duplicar texto largo en la barra) --}}
                 @auth
                     <div class="flex shrink-0 items-center gap-2">
-                        <div class="hidden items-center gap-2 rounded-full border border-slate-700/80 bg-slate-800/90 py-1 pl-1.5 pr-2.5 sm:flex"
-                             title="{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})">
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[11px] font-extrabold text-slate-950">
-                                {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
-                            </span>
-                            <span class="hidden max-w-[140px] truncate whitespace-nowrap text-xs font-medium text-slate-200 xl:inline">
-                                {{ auth()->user()->name }}
-                            </span>
-                            <span class="shrink-0 whitespace-nowrap rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
-                                {{ auth()->user()->role->label() }}
-                            </span>
-                        </div>
-
                         <button type="button" @click="mobileOpen = !mobileOpen"
                                 class="whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700 hover:bg-slate-800 lg:hidden"
                                 aria-label="Secciones del sistema">

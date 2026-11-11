@@ -1,6 +1,6 @@
 {{--
-    Menú de usuario (botón de tres líneas) para la barra de navegación.
-    Estructura: Configuración ▸ Apariencia (tema y tamaño de texto) … y al final "Cerrar sesión".
+    Menú de usuario (botón integrado con avatar, rol y tres líneas) para la barra de navegación.
+    Estructura: Cabecera de perfil ▸ Configuración ▸ Apariencia (tema y tamaño de texto) … y al final "Cerrar sesión".
     Para agregar nuevas opciones de configuración, añadir otro bloque dentro de <div x-show="config"> (ver "Próximamente").
     Requiere Alpine (ya cargado en el layout).
 --}}
@@ -8,13 +8,20 @@
 <div x-data="{ open: false, config: false, appearance: false }"
      @click.outside="open = false"
      @keydown.escape.window="open = false"
-     class="relative print:hidden">
+     class="relative shrink-0 print:hidden">
 
-    {{-- Botón de tres líneas horizontales --}}
+    {{-- Botón unificado: Avatar + Rol + Ícono de tres líneas horizontales --}}
     <button type="button" @click="open = !open" :aria-expanded="open.toString()" aria-haspopup="true"
-            aria-label="Menú de usuario" title="Menú de usuario"
-            class="flex h-9 w-9 items-center justify-center rounded-md bg-slate-800 text-slate-200 ring-1 ring-slate-700 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            aria-label="Menú de usuario"
+            title="{{ $menuUser->name }} ({{ $menuUser->role->label() }}) — Abrir menú"
+            class="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-slate-700 bg-slate-800/95 px-2.5 text-slate-200 shadow-sm transition hover:border-slate-600 hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">
+        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[11px] font-extrabold text-slate-950">
+            {{ mb_strtoupper(mb_substr($menuUser->name, 0, 1)) }}
+        </span>
+        <span class="hidden whitespace-nowrap rounded bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-amber-300 sm:inline">
+            {{ $menuUser->role->label() }}
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
     </button>
@@ -30,7 +37,7 @@
             </span>
             <div class="min-w-0">
                 <p class="truncate text-sm font-semibold text-white">{{ $menuUser->name }}</p>
-                <p class="text-xs text-amber-300">{{ $menuUser->role->label() }}</p>
+                <p class="truncate text-xs text-amber-300">{{ $menuUser->role->label() }} · {{ $menuUser->username }}</p>
             </div>
         </div>
 

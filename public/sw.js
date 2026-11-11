@@ -11,7 +11,7 @@
  *
  * Subir la versión de CACHE_VERSION cuando se modifique este archivo o la lista PRECACHE.
  */
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = 'eet2-static-' + CACHE_VERSION;
 
 // El scope del SW es la carpeta donde está este archivo (funciona en la raíz o en subcarpetas, ej. XAMPP).
