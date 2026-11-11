@@ -151,16 +151,10 @@
                                 {{ auth()->user()->role->label() }}
                             </span>
                         </div>
-                        @include('partials.theme-menu')
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button class="rounded bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700 transition hover:bg-red-600 hover:text-white hover:ring-red-500">
-                                Salir
-                            </button>
-                        </form>
-                        <button type="button" @click="mobileOpen = !mobileOpen" class="rounded p-1.5 text-slate-300 hover:bg-slate-800 lg:hidden" aria-label="Menú">
-                            ☰
+                        <button type="button" @click="mobileOpen = !mobileOpen" class="rounded px-2.5 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700 hover:bg-slate-800 lg:hidden" aria-label="Secciones del sistema">
+                            Secciones <span class="text-[10px] opacity-70">▾</span>
                         </button>
+                        @include('partials.user-menu')
                     </div>
                 @endauth
             </div>
