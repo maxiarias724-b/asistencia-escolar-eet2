@@ -37,6 +37,22 @@
                                 Dashboard
                             </a>
 
+                            {{-- Amonestaciones (Disciplina) --}}
+                            @can('viewAny', \App\Models\DisciplinaryRecord::class)
+                                <a href="{{ route('disciplinary.index') }}"
+                                   class="rounded px-3 py-1.5 font-medium transition {{ request()->routeIs('disciplinary.*') ? 'bg-slate-800 text-amber-300' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    Amonestaciones
+                                </a>
+                            @endcan
+
+                            {{-- Programa QR (Quiero Regresar) --}}
+                            @can('viewAny', \App\Models\QrIntervention::class)
+                                <a href="{{ route('qr.index') }}"
+                                   class="rounded px-3 py-1.5 font-medium transition {{ request()->routeIs('qr.*') ? 'bg-slate-800 text-amber-300' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    Programa QR
+                                </a>
+                            @endcan
+
                             {{-- Asistencia --}}
                             @if ($u->isDirector() || $u->isOperador())
                                 <div x-data="{ open: false }" @click.outside="open = false" class="relative">
@@ -165,6 +181,12 @@
                 @php $u = auth()->user(); @endphp
                 <div x-show="mobileOpen" x-cloak class="space-y-1 border-t border-slate-800 pb-3 pt-2 text-sm lg:hidden">
                     <a href="{{ route('home') }}" class="block rounded px-3 py-1.5 hover:bg-slate-800">Dashboard</a>
+                    @can('viewAny', \App\Models\DisciplinaryRecord::class)
+                        <a href="{{ route('disciplinary.index') }}" class="block rounded px-3 py-1.5 hover:bg-slate-800">Amonestaciones (Disciplina)</a>
+                    @endcan
+                    @can('viewAny', \App\Models\QrIntervention::class)
+                        <a href="{{ route('qr.index') }}" class="block rounded px-3 py-1.5 hover:bg-slate-800">Programa QR (Quiero Regresar)</a>
+                    @endcan
                     @if ($u->isOperador())
                         <a href="{{ route('operator.home') }}" class="block rounded px-3 py-1.5 hover:bg-slate-800">Mis cursos asignados</a>
                     @endif

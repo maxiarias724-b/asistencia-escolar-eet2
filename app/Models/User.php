@@ -90,7 +90,50 @@ class User extends Authenticatable
         return $this->hasMany(AuditLog::class);
     }
 
+    public function disciplinaryRecords(): HasMany
+    {
+        return $this->hasMany(DisciplinaryRecord::class, 'recorded_by');
+    }
+
+    public function qrInterventions(): HasMany
+    {
+        return $this->hasMany(QrIntervention::class, 'initiated_by');
+    }
+
     /* ------------------------------- Helpers ------------------------------ */
+
+    /**
+     * IDs únicos de los cursos asignados al usuario en la tabla `course_user`.
+     *
+     * @return array<int, int>
+     */
+    public function assignedCourseIds(): array
+    {
+        return $this->assignments()
+            ->pluck('course_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * ¿Tiene este usuario asignado el curso en `course_user` (o es Director)?
+     */
+    public function hasAssignedCourse(Course|int|null $course): bool
+    {
+        if (! $this->active || $course === null) {
+            return false;
+        }
+
+        if ($this->isDirector()) {
+            return true;
+        }
+
+        $courseId = $course instanceof Course ? (int) $course->getKey() : (int) $course;
+
+        return $this->assignments()->where('course_id', $courseId)->exists();
+    }
 
     public function isDirector(): bool
     {

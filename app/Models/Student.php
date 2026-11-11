@@ -61,6 +61,16 @@ class Student extends Model
         return $this->hasMany(Attendance::class);
     }
 
+    public function disciplinaryRecords(): HasMany
+    {
+        return $this->hasMany(DisciplinaryRecord::class);
+    }
+
+    public function qrInterventions(): HasMany
+    {
+        return $this->hasMany(QrIntervention::class);
+    }
+
     /** "APELLIDO, Nombre" como se muestra en las nóminas de SINIDE. */
     protected function fullName(): Attribute
     {

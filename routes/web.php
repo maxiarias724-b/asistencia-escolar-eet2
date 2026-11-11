@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DailyStudentAttendanceController;
+use App\Http\Controllers\DisciplinaryRecordController;
 use App\Http\Controllers\Director\AssignmentController;
 use App\Http\Controllers\Director\AuditController;
 use App\Http\Controllers\Director\AuditLogController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Organization\SpecialtyController;
 use App\Http\Controllers\People\MassImportController;
 use App\Http\Controllers\People\StudentController;
 use App\Http\Controllers\People\TeacherController;
+use App\Http\Controllers\QrInterventionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RosterController;
 use App\Http\Controllers\TeacherAttendanceController;
@@ -189,5 +191,40 @@ Route::middleware('auth')->group(function () {
             ->except('show')
             ->parameters(['usuarios' => 'user'])
             ->names('users');
+    });
+
+    /* --------------------- Módulo de Amonestaciones (Disciplina) --------------------- */
+    Route::middleware('active.user')->prefix('amonestaciones')->name('disciplinary.')->group(function () {
+        Route::get('/', [DisciplinaryRecordController::class, 'index'])->name('index');
+        Route::get('/crear', [DisciplinaryRecordController::class, 'create'])->name('create');
+        Route::post('/', [DisciplinaryRecordController::class, 'store'])->name('store');
+        Route::get('/{disciplinaryRecord}/editar', [DisciplinaryRecordController::class, 'edit'])
+            ->whereNumber('disciplinaryRecord')
+            ->name('edit');
+        Route::put('/{disciplinaryRecord}', [DisciplinaryRecordController::class, 'update'])
+            ->whereNumber('disciplinaryRecord')
+            ->name('update');
+        Route::delete('/{disciplinaryRecord}', [DisciplinaryRecordController::class, 'destroy'])
+            ->whereNumber('disciplinaryRecord')
+            ->name('destroy');
+        Route::patch('/{disciplinaryRecord}/estado', [DisciplinaryRecordController::class, 'toggleActive'])
+            ->whereNumber('disciplinaryRecord')
+            ->name('toggle');
+    });
+
+    /* ------------- Módulo Programa QR ("Quiero Regresar") - Revinculación ------------- */
+    Route::middleware(['active.user', 'role:director,operador'])->prefix('programa-qr')->name('qr.')->group(function () {
+        Route::get('/', [QrInterventionController::class, 'index'])->name('index');
+        Route::get('/crear', [QrInterventionController::class, 'create'])->name('create');
+        Route::post('/', [QrInterventionController::class, 'store'])->name('store');
+        Route::get('/{qrIntervention}', [QrInterventionController::class, 'show'])
+            ->whereNumber('qrIntervention')
+            ->name('show');
+        Route::get('/{qrIntervention}/editar', [QrInterventionController::class, 'edit'])
+            ->whereNumber('qrIntervention')
+            ->name('edit');
+        Route::put('/{qrIntervention}', [QrInterventionController::class, 'update'])
+            ->whereNumber('qrIntervention')
+            ->name('update');
     });
 });
