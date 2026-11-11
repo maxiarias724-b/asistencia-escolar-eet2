@@ -10,6 +10,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
     @endif
     @include('partials.theme-head')
+    @include('partials.pwa-head')
 </head>
 <body class="flex min-h-screen flex-col justify-between p-4 text-slate-800 antialiased">
     <div class="text-right">

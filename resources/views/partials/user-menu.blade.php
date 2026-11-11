@@ -78,6 +78,19 @@
 
                 {{-- Próximamente: más opciones de configuración --}}
             </div>
+
+            {{-- Instalar como aplicación (PWA): solo se muestra si el navegador lo permite --}}
+            <div data-pwa-install hidden>
+                <button type="button" data-pwa-install-action role="menuitem"
+                        class="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium text-slate-100 transition hover:bg-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 3v12" />
+                        <path d="M7 10l5 5 5-5" />
+                        <path d="M5 21h14" />
+                    </svg>
+                    Instalar aplicación
+                </button>
+            </div>
         </div>
 
         {{-- Cerrar sesión --}}

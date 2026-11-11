@@ -13,6 +13,7 @@
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @endif
     @include('partials.theme-head')
+    @include('partials.pwa-head')
     <style>[x-cloak]{display:none !important} @media print { @page { size: landscape; margin: 8mm } }</style>
 </head>
 <body class="flex min-h-screen flex-col text-slate-800 antialiased">

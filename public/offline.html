@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f172a">
+    <title>Sin conexión · EET N° 2</title>
+    <style>
+        :root { color-scheme: light dark; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 1rem; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: #f1f5f9; color: #1e293b;
+        }
+        .card {
+            width: 100%; max-width: 26rem; overflow: hidden; border-radius: .75rem;
+            border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 10px 25px rgba(15, 23, 42, .12);
+        }
+        .head { background: #0f172a; color: #fff; padding: 1.25rem 1.5rem; text-align: center; }
+        .badge {
+            display: inline-block; border-radius: .25rem; background: #f59e0b; color: #020617;
+            padding: .15rem .6rem; font-size: .75rem; font-weight: 800; text-transform: uppercase;
+        }
+        .head h1 { margin: .5rem 0 0; font-size: 1.05rem; }
+        .body { padding: 1.5rem; text-align: center; }
+        .body h2 { margin: 0 0 .5rem; font-size: 1.15rem; }
+        .body p { margin: 0 0 1rem; font-size: .9rem; line-height: 1.5; color: #475569; }
+        button {
+            width: 100%; cursor: pointer; border: 0; border-radius: .375rem; background: #0f172a; color: #fff;
+            padding: .7rem 1rem; font-size: .9rem; font-weight: 600;
+        }
+        button:hover { background: #1e293b; }
+        @media (prefers-color-scheme: dark) {
+            body { background: #0b1120; color: #f1f5f9; }
+            .card { background: #131c30; border-color: #2b3a55; }
+            .body p { color: #94a3b8; }
+            button { background: #334155; }
+            button:hover { background: #475569; }
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="head">
+            <span class="badge">EET N° 2</span>
+            <h1>Sistema de Asistencia</h1>
+        </div>
+        <div class="body">
+            <h2>Sin conexión a internet</h2>
+            <p>
+                No pudimos comunicarnos con el servidor. Para proteger los datos de los estudiantes,
+                la asistencia solo se puede consultar y registrar con conexión.
+                Revisá tu red e intentá nuevamente.
+            </p>
+            <button type="button" onclick="location.reload()">Reintentar</button>
+        </div>
+    </main>
+</body>
+</html>

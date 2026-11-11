@@ -55,7 +55,7 @@
             </form>
         </div>
 
-        <table class="min-w-full text-sm">
+        <div class="overflow-x-auto"><table class="min-w-full text-sm">
             <thead class="bg-slate-50 text-left text-xs uppercase text-slate-500">
                 <tr>
                     <th class="px-4 py-2.5">Ámbito</th>
@@ -97,7 +97,7 @@
                     <tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">No hay actividades registradas.</td></tr>
                 @endforelse
             </tbody>
-        </table>
+        </table></div>
 
         <div x-show="editing" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
             <div @click.outside="editing = null" class="w-full max-w-md rounded-lg bg-white p-5 shadow-xl">

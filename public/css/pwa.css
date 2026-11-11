@@ -1,0 +1,34 @@
+/*
+ * Ajustes responsive / táctiles / modo app instalada (PWA).
+ * Complementa las utilidades de Tailwind; no cambia el diseño en escritorio.
+ */
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: hidden; }
+
+/* Evita el zoom automático de iOS al enfocar campos (requiere >= 16px) en celulares. */
+@media (max-width: 767px) and (pointer: coarse) {
+    main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), select, textarea) {
+        font-size: 16px;
+    }
+    /* En tablas densas se mantiene el tamaño compacto. */
+    main td :is(input, select, textarea),
+    main th :is(input, select, textarea) { font-size: .875rem; }
+}
+
+/* Mejor área táctil para botones y enlaces del menú en pantallas táctiles. */
+@media (pointer: coarse) {
+    nav a, nav button { min-height: 2.25rem; }
+}
+
+/* Tablas con scroll horizontal fluido en táctiles. */
+.overflow-x-auto { -webkit-overflow-scrolling: touch; }
+
+/* App instalada (sin barra del navegador): respetar zonas seguras del dispositivo. */
+@media (display-mode: standalone) {
+    body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
