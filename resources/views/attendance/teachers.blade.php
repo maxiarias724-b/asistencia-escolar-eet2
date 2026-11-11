@@ -12,8 +12,19 @@
             'specialty_area' => $t->specialty_area,
             'status' => $att?->status?->value ?? 'presente',
             'observation' => $att?->observation ?? '',
+            'recorded' => $att !== null,
+            'recorded_by_name' => $att?->recorder?->name,
+            'recorded_by_role' => $att?->recorder?->role?->label(),
+            'recorded_at' => $att?->updated_at?->format('d/m H:i'),
         ];
     })->values()->all();
+
+    $shiftRecorders = $existingByTeacher
+        ->map(fn ($att) => $att->recorder ? ($att->recorder->name . ' (' . $att->recorder->role->label() . ')') : null)
+        ->filter()
+        ->unique()
+        ->values()
+        ->all();
 @endphp
 
 @section('content')
@@ -98,8 +109,22 @@
             <input type="hidden" name="activity_id" value="{{ $selectedActivityId }}">
 
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-4 py-3 text-xs">
-                <div class="text-sm font-semibold text-slate-800">
-                    Turno {{ $selectedShift->name }} · {{ $date->translatedFormat('l d/m/Y') }} ({{ $teachers->count() }} docentes)
+                <div class="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-800">
+                    <span>Turno {{ $selectedShift->name }} · {{ $date->translatedFormat('l d/m/Y') }} ({{ $teachers->count() }} docentes)</span>
+                    @if ($existingByTeacher->isNotEmpty())
+                        <span class="inline-flex items-center gap-1 rounded border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                            ✓ Asistencia tomada ({{ $existingByTeacher->count() }}/{{ $teachers->count() }})
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                            ⏳ Registro pendiente
+                        </span>
+                    @endif
+                    @if (! empty($shiftRecorders))
+                        <span class="rounded border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-normal text-slate-600">
+                            Tomada por: <strong class="font-semibold text-slate-900">{{ implode(', ', $shiftRecorders) }}</strong>
+                        </span>
+                    @endif
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <span>
@@ -127,6 +152,7 @@
                             <th class="px-3 py-2.5">Área / Especialidad</th>
                             <th class="px-3 py-2.5">Estado</th>
                             <th class="px-3 py-2.5">Observación / Artículo o Licencia (obligatoria en IJ)</th>
+                            <th class="px-3 py-2.5">Tomada por</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -164,6 +190,20 @@
                                            :class="row.status === 'justificada' && row.observation.trim().length < 10 ? 'border-red-400 bg-red-50' : 'border-slate-300'"
                                            class="block w-full min-w-[16rem] rounded border px-2.5 py-1 text-xs disabled:bg-slate-100">
                                 </td>
+                                <td class="px-3 py-2 text-xs">
+                                    <template x-if="row.recorded_by_name">
+                                        <div>
+                                            <div class="font-semibold text-slate-800" x-text="row.recorded_by_name"></div>
+                                            <div class="mt-0.5 flex flex-wrap items-center gap-1">
+                                                <span class="inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600" x-text="row.recorded_by_role"></span>
+                                                <span x-show="row.recorded_at" class="text-[10px] text-slate-400" x-text="row.recorded_at"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!row.recorded_by_name">
+                                        <span class="text-[11px] text-slate-400">Sin registro previo</span>
+                                    </template>
+                                </td>
                             </tr>
                         </template>
                     </tbody>
@@ -171,9 +211,12 @@
             </div>
 
             @if ($canEditDay)
-                <div class="flex items-center justify-end border-t border-slate-200 bg-slate-50 px-4 py-3">
-                    <button class="rounded bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
-                        Guardar asistencia docente
+                <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3">
+                    <span class="text-xs text-slate-500">
+                        Responsable de carga actual: <strong class="text-slate-800">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</strong>
+                    </span>
+                    <button class="rounded {{ $existingByTeacher->isNotEmpty() ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700' }} px-5 py-2 text-sm font-semibold text-white shadow-sm">
+                        {{ $existingByTeacher->isNotEmpty() ? '✓ Actualizar asistencia docente' : 'Guardar asistencia docente' }}
                     </button>
                 </div>
             @endif

@@ -126,6 +126,12 @@ class AttendanceStatistics
         $byShift = $shifts->map(function (Shift $shift) use ($records, $activeTeachersCount) {
             $shiftRecords = $records->where('shift_id', $shift->id);
             $recordedCount = $shiftRecords->count();
+            $recorders = $shiftRecords
+                ->map(fn ($r) => $r->recorder ? ($r->recorder->name.' ('.$r->recorder->role->label().')') : null)
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
 
             return [
                 'shift_id' => $shift->id,
@@ -133,6 +139,7 @@ class AttendanceStatistics
                 'taken' => $recordedCount > 0,
                 'recorded' => $recordedCount,
                 'total_teachers' => $activeTeachersCount,
+                'recorders' => $recorders,
                 'presente' => $shiftRecords->filter(fn ($r) => $r->status === AttendanceStatus::Presente)->count(),
                 'ausente' => $shiftRecords->filter(fn ($r) => $r->status === AttendanceStatus::Ausente)->count(),
                 'tardanza' => $shiftRecords->filter(fn ($r) => $r->status === AttendanceStatus::Tardanza)->count(),

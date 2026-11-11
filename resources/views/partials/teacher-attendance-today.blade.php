@@ -70,6 +70,11 @@
                                         M: <strong class="text-orange-700">{{ $shiftRow['media_falta'] }}</strong> ·
                                         J: <strong class="text-sky-700">{{ $shiftRow['justificada'] }}</strong>
                                     </div>
+                                    @if (! empty($shiftRow['recorders']))
+                                        <div class="mt-1.5 text-[11px] text-slate-600">
+                                            Tomada por: <strong class="text-slate-800">{{ implode(', ', $shiftRow['recorders']) }}</strong>
+                                        </div>
+                                    @endif
                                 @else
                                     <div class="mt-2 text-xs text-slate-500">
                                         Sin registros docentes cargados hoy en este turno.
@@ -103,7 +108,7 @@
                                 <th class="px-3 py-2">Turno / Actividad</th>
                                 <th class="px-3 py-2">Estado</th>
                                 <th class="px-3 py-2">Observación</th>
-                                <th class="px-3 py-2">Registrado por</th>
+                                <th class="px-3 py-2">Tomada por</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -133,8 +138,15 @@
                                     <td class="px-3 py-2 text-xs text-slate-600">
                                         {{ $rec->observation ?: '—' }}
                                     </td>
-                                    <td class="px-3 py-2 text-xs text-slate-500">
-                                        {{ $rec->recorder?->name ?? '—' }}
+                                    <td class="px-3 py-2 text-xs">
+                                        @if ($rec->recorder)
+                                            <div class="font-semibold text-slate-800">{{ $rec->recorder->name }}</div>
+                                            <span class="inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+                                                {{ $rec->recorder->role->label() }}
+                                            </span>
+                                        @else
+                                            <span class="text-slate-400">—</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

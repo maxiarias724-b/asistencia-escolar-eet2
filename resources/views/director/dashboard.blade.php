@@ -89,9 +89,6 @@
         </div>
     </div>
 
-    {{-- Bloque 1.5: Vista de Asistencia Docente del Día --}}
-    @include('partials.teacher-attendance-today', ['teacherToday' => $teacherToday ?? null])
-
     {{-- Bloque 2: Tarjetas acumuladas del período filtrado (SINIDE) --}}
     <div class="mb-3 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
         @php
@@ -196,7 +193,7 @@
         </section>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="mb-6 grid gap-6 lg:grid-cols-2">
         <section class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <div class="mb-3 flex items-center justify-between">
                 <h2 class="font-semibold">Últimas observaciones diarias</h2>
@@ -209,7 +206,7 @@
                             <strong>{{ $a->student->full_name }}</strong>
                             <x-status-badge :status="$a->status" />
                         </div>
-                        <div class="text-xs text-slate-500">{{ $a->date->format('d/m/Y') }} · {{ $a->course->name }} · {{ $a->activity_type->label() }} · {{ $a->user->name }}</div>
+                        <div class="text-xs text-slate-500">{{ $a->date->format('d/m/Y') }} · {{ $a->course->name }} · {{ $a->activity_type->label() }} · {{ $a->user->name }} ({{ $a->user->role->label() }})</div>
                         <p class="mt-1 italic">“{{ $a->observation }}”</p>
                     </li>
                 @empty
@@ -229,7 +226,7 @@
                         <strong>{{ $j->attendance->student->full_name }}</strong>
                         <span class="text-slate-500">· {{ $j->attendance->course->name }} · {{ $j->attendance->date->format('d/m/Y') }}</span>
                         <div class="text-xs text-slate-500">
-                            Justificada por {{ $j->justifiedBy?->name }} el {{ $j->justified_at->format('d/m/Y H:i') }}
+                            Justificada por {{ $j->justifiedBy?->name }} ({{ $j->justifiedBy?->role?->label() }}) el {{ $j->justified_at->format('d/m/Y H:i') }}
                             · {{ $j->reason_text ? '📝 texto' : '' }} {{ $j->certificate_path ? '📎 certificado' : '' }}
                         </div>
                     </li>
@@ -239,4 +236,7 @@
             </ul>
         </section>
     </div>
+
+    {{-- Bloque Final: Vista de Asistencia Docente del Día --}}
+    @include('partials.teacher-attendance-today', ['teacherToday' => $teacherToday ?? null])
 @endsection

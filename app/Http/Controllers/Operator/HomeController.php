@@ -49,18 +49,17 @@ class HomeController extends Controller
                 ->groupBy('course_id')
                 ->pluck('total', 'course_id');
 
-        $recordedByCourseActivity = $courseIds->isEmpty()
+        $todayAttendances = $courseIds->isEmpty()
             ? collect()
             : Attendance::query()
                 ->whereIn('course_id', $courseIds)
                 ->where('date', $today)
-                ->selectRaw('course_id, activity_type, COUNT(*) as recorded')
-                ->groupBy('course_id', 'activity_type')
+                ->with('recorder')
                 ->get()
-                ->mapWithKeys(function ($row) {
+                ->groupBy(function (Attendance $row) {
                     $slug = (string) ($row->getRawOriginal('activity_type') ?? $row->activity_type->value ?? $row->activity_type);
 
-                    return ["{$row->course_id}:{$slug}" => (int) $row->recorded];
+                    return "{$row->course_id}:{$slug}";
                 });
 
         $statusByAssignment = [];
@@ -70,14 +69,22 @@ class HomeController extends Controller
         foreach ($assignments as $assignment) {
             $slug = $assignment->activity_type->value;
             $key = "{$assignment->course_id}:{$slug}";
-            $recorded = (int) ($recordedByCourseActivity[$key] ?? 0);
+            $rowsForKey = $todayAttendances->get($key, collect());
+            $recorded = $rowsForKey->count();
             $totalStudents = (int) ($studentCountsByCourse[$assignment->course_id] ?? 0);
             $taken = $recorded > 0;
+            $recorders = $rowsForKey
+                ->map(fn (Attendance $r) => $r->recorder ? ($r->recorder->name.' ('.$r->recorder->role->label().')') : null)
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
 
             $statusByAssignment[$key] = [
                 'taken' => $taken,
                 'recorded' => $recorded,
                 'total_students' => $totalStudents,
+                'recorders' => $recorders,
             ];
 
             if ($taken) {

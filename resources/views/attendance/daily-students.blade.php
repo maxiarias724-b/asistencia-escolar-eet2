@@ -12,6 +12,9 @@
             'file_number' => $st->file_number,
             'status' => $att?->status?->value ?? 'presente',
             'recorded' => $att !== null,
+            'recorded_by_name' => $att?->recorder?->name,
+            'recorded_by_role' => $att?->recorder?->role?->label(),
+            'recorded_at' => $att?->updated_at?->format('d/m H:i'),
             'observation' => $att?->observation ?? '',
             'justified_reason' => $just?->reason_text ?? '',
             'has_certificate' => (bool) $just?->hasCertificate(),
@@ -20,6 +23,13 @@
                 : null,
         ];
     })->values()->all();
+
+    $courseRecorders = $existingByStudent
+        ->map(fn ($att) => $att->recorder ? ($att->recorder->name . ' (' . $att->recorder->role->label() . ')') : null)
+        ->filter()
+        ->unique()
+        ->values()
+        ->all();
 
     $justifyEndpoint = ($scope && $course)
         ? route('attendance.justify', ['activity' => $scope->slug, 'course' => $course->id])
@@ -162,6 +172,11 @@
                             ⏳ Registro pendiente
                         </span>
                     @endif
+                    @if (! empty($courseRecorders))
+                        <span class="ml-1 rounded border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-normal text-slate-600">
+                            Tomada por: <strong class="font-semibold text-slate-900">{{ implode(', ', $courseRecorders) }}</strong>
+                        </span>
+                    @endif
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3 text-xs">
@@ -190,6 +205,7 @@
                             <th class="px-3 py-2.5">DNI / Legajo</th>
                             <th class="px-3 py-2.5">Estado de Asistencia</th>
                             <th class="px-3 py-2.5">Observación diaria</th>
+                            <th class="px-3 py-2.5">Tomada por</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -246,6 +262,20 @@
                                            maxlength="1000" placeholder="Observación opcional del día…"
                                            class="block w-full min-w-[14rem] rounded border border-slate-300 px-2.5 py-1 text-xs disabled:bg-slate-100">
                                 </td>
+                                <td class="px-3 py-2 text-xs">
+                                    <template x-if="row.recorded_by_name">
+                                        <div>
+                                            <div class="font-semibold text-slate-800" x-text="row.recorded_by_name"></div>
+                                            <div class="mt-0.5 flex flex-wrap items-center gap-1">
+                                                <span class="inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600" x-text="row.recorded_by_role"></span>
+                                                <span x-show="row.recorded_at" class="text-[10px] text-slate-400" x-text="row.recorded_at"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!row.recorded_by_name">
+                                        <span class="text-[11px] text-slate-400">Sin registro previo</span>
+                                    </template>
+                                </td>
                             </tr>
                         </template>
                     </tbody>
@@ -256,10 +286,14 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3">
                     <span class="text-xs text-slate-500">
                         @if ($existingByStudent->isNotEmpty())
-                            <strong class="text-emerald-700">✓ Asistencia ya registrada para esta fecha ({{ $existingByStudent->count() }}/{{ $students->count() }}).</strong> Podés modificar estados y volver a guardar.
+                            <strong class="text-emerald-700">✓ Asistencia ya registrada ({{ $existingByStudent->count() }}/{{ $students->count() }})</strong>
+                            @if (! empty($courseRecorders))
+                                por <strong class="text-slate-800">{{ implode(', ', $courseRecorders) }}</strong>.
+                            @endif
                         @else
                             Recordá que las justificaciones (IJ) se guardan al instante desde su modal con respaldo obligatorio.
                         @endif
+                        <span class="ml-1 text-slate-500">· Responsable actual: <strong class="text-slate-800">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</strong></span>
                     </span>
                     <button class="rounded {{ $existingByStudent->isNotEmpty() ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700' }} px-5 py-2 text-sm font-semibold text-white shadow-sm">
                         {{ $existingByStudent->isNotEmpty() ? '✓ Actualizar asistencia del día' : 'Guardar asistencia del día' }}

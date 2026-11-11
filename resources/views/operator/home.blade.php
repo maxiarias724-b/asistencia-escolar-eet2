@@ -51,13 +51,20 @@
                             </div>
 
                             @if ($isTaken)
-                                <div class="mt-3 flex items-center justify-between rounded border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs">
-                                    <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-800">
-                                        <span aria-hidden="true">✓</span> Asistencia tomada
-                                    </span>
-                                    <span class="font-medium text-emerald-700">
-                                        {{ $courseStatus['recorded'] }}{{ $courseStatus['total_students'] > 0 ? '/' . $courseStatus['total_students'] : '' }} reg.
-                                    </span>
+                                <div class="mt-3 rounded border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-800">
+                                            <span aria-hidden="true">✓</span> Asistencia tomada
+                                        </span>
+                                        <span class="font-medium text-emerald-700">
+                                            {{ $courseStatus['recorded'] }}{{ $courseStatus['total_students'] > 0 ? '/' . $courseStatus['total_students'] : '' }} reg.
+                                        </span>
+                                    </div>
+                                    @if (! empty($courseStatus['recorders']))
+                                        <div class="mt-1 text-[11px] text-emerald-800">
+                                            Tomada por: <strong>{{ implode(', ', $courseStatus['recorders']) }}</strong>
+                                        </div>
+                                    @endif
                                 </div>
                             @else
                                 <div class="mt-3 flex items-center justify-between rounded border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs">

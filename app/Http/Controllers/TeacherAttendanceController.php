@@ -61,6 +61,7 @@ class TeacherAttendanceController extends Controller
                 ->where('date', $date->toDateString())
                 ->where('shift_id', $selectedShift->id)
                 ->when($selectedActivityId, fn ($query) => $query->where('activity_id', $selectedActivityId), fn ($query) => $query->whereNull('activity_id'))
+                ->with('recorder')
                 ->get()
                 ->keyBy('teacher_id')
             : collect();

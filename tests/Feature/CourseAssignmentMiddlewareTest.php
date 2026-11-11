@@ -209,7 +209,10 @@ class CourseAssignmentMiddlewareTest extends TestCase
             'course_id' => $c31->id,
         ]));
         $dailyResponse->assertOk()
-            ->assertSee('Asistencia tomada (1/1)');
+            ->assertSee('Asistencia tomada (1/1)')
+            ->assertSee('Tomada por:')
+            ->assertSee($this->operador->name)
+            ->assertSee('Preceptor / Operador');
     }
 
     public function test_dashboard_shows_today_teacher_attendance_view(): void
@@ -238,11 +241,22 @@ class CourseAssignmentMiddlewareTest extends TestCase
         $this->actingAs($director)
             ->get(route('director.dashboard'))
             ->assertOk()
-            ->assertSee('Asistencia docente del día')
+            ->assertSeeInOrder([
+                'Últimas justificaciones documentadas',
+                'Asistencia docente del día',
+            ])
             ->assertSee('SALAZAR, Roberto')
             ->assertSee('Electrónica Industrial')
             ->assertSee('Dictado de laboratorio')
-            ->assertSee('Asistencia tomada (1)');
+            ->assertSee('Asistencia tomada (1)')
+            ->assertSee($director->name.' (Director)');
+
+        $this->actingAs($director)
+            ->get(route('attendance.teachers.index', ['shift_id' => $shiftManana->id]))
+            ->assertOk()
+            ->assertSee('Asistencia tomada (1/1)')
+            ->assertSee('Tomada por:')
+            ->assertSee($director->name.' (Director)');
 
         $this->actingAs($this->operador)
             ->get(route('operator.home'))

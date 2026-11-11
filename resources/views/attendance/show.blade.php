@@ -155,6 +155,21 @@
                         <button type="button" class="text-2xl leading-none text-slate-400 hover:text-slate-700" @click="editor.open = false" aria-label="Cerrar">&times;</button>
                     </div>
 
+                    <div class="mb-3 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                        <template x-if="editor.cell?.recorded_by">
+                            <div>
+                                Tomada por: <strong class="text-slate-900" x-text="editor.cell.recorded_by"></strong>
+                                <span x-show="editor.cell.recorded_by_role" class="ml-1 inline-block rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700" x-text="editor.cell.recorded_by_role"></span>
+                                <span x-show="editor.cell.recorded_at" class="ml-1 text-slate-400" x-text="'· ' + editor.cell.recorded_at"></span>
+                            </div>
+                        </template>
+                        <template x-if="!editor.cell?.recorded_by">
+                            <div>
+                                Sin registro previo · Responsable actual: <strong class="text-slate-900">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</strong>
+                            </div>
+                        </template>
+                    </div>
+
                     <div class="mb-3 grid grid-cols-2 gap-2">
                         <template x-for="s in choices" :key="s.value">
                             <button type="button" @click="editor.status = s.value"
@@ -279,7 +294,8 @@
                 if (!row.active) return 'Alumno ' + row.status_label.toLowerCase();
                 if (d.future) return 'Fecha futura';
                 if (!c) return 'Sin registrar';
-                return statusMeta[c.status].label + (c.observation ? ' — ' + c.observation : '');
+                const recorder = c.recorded_by ? ' · Tomada por: ' + c.recorded_by + (c.recorded_by_role ? ' (' + c.recorded_by_role + ')' : '') : '';
+                return statusMeta[c.status].label + (c.observation ? ' — ' + c.observation : '') + recorder;
             },
 
             get canJustify() {

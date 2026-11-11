@@ -76,7 +76,7 @@ class DailyStudentAttendanceController extends Controller
                 ->where('course_id', $course->id)
                 ->where('activity_type', $scope->slug)
                 ->where('date', $date->toDateString())
-                ->with('justification.justifiedBy')
+                ->with(['justification.justifiedBy', 'recorder'])
                 ->get()
                 ->keyBy('student_id');
         }

@@ -53,8 +53,9 @@ class MonthlyRegister
         $attendances = Attendance::query()
             ->where('course_id', $course->id)
             ->where('activity_type', $activity->value)
-            ->whereBetween('date', [$month->toDateString(), $end->toDateString()])
-            ->with('justification.justifiedBy')
+            ->where('date', '>=', $month->toDateString())
+            ->where('date', '<=', $end->toDateString())
+            ->with(['justification.justifiedBy', 'recorder'])
             ->get();
 
         $byStudent = $attendances->groupBy('student_id');
@@ -151,6 +152,9 @@ class MonthlyRegister
             'status' => $a->status->value,
             'code' => $a->status->code(),
             'observation' => $a->observation,
+            'recorded_by' => $a->recorder?->name,
+            'recorded_by_role' => $a->recorder?->role?->label(),
+            'recorded_at' => $a->updated_at?->format('d/m/Y H:i'),
             'justification' => $j ? [
                 'reason' => $j->reason_text,
                 'has_certificate' => $j->hasCertificate(),
