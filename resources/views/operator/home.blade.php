@@ -101,8 +101,10 @@
     @endforelse
 
     @if ($groups->isEmpty())
-        <div class="rounded border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+        <div class="mb-6 rounded border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
             Todavía no tenés cursos ni ámbitos asignados. Solicitá la habilitación a Dirección.
         </div>
     @endif
+
+    @include('partials.teacher-attendance-today', ['teacherToday' => $teacherToday ?? null])
 @endsection

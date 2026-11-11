@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Scope;
 use App\Models\Student;
+use App\Services\AttendanceStatistics;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -94,6 +95,7 @@ class HomeController extends Controller
             'statusByAssignment' => $statusByAssignment,
             'takenCoursesCount' => $takenCoursesCount,
             'pendingCoursesCount' => $pendingCoursesCount,
+            'teacherToday' => (new AttendanceStatistics())->todayTeacherSummary(),
         ]);
     }
 }

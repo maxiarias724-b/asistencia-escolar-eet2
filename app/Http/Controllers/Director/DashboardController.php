@@ -42,6 +42,7 @@ class DashboardController extends Controller
         return view('director.dashboard', [
             'stats' => $stats,
             'todayTotals' => $stats->todayTotals(),
+            'teacherToday' => $stats->todayTeacherSummary(),
             'totals' => $stats->totals(),
             'byCourse' => $stats->breakdown('course_id'),
             'byActivity' => $stats->breakdown('activity_type'),

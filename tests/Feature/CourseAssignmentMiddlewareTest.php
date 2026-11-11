@@ -7,7 +7,10 @@ use App\Enums\Role;
 use App\Http\Middleware\CheckCourseAssignment;
 use App\Models\Attendance;
 use App\Models\Course;
+use App\Models\Shift;
 use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\TeacherAttendance;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -207,5 +210,44 @@ class CourseAssignmentMiddlewareTest extends TestCase
         ]));
         $dailyResponse->assertOk()
             ->assertSee('Asistencia tomada (1/1)');
+    }
+
+    public function test_dashboard_shows_today_teacher_attendance_view(): void
+    {
+        $director = User::factory()->director()->create(['username' => 'dir_dash']);
+        $shiftManana = Shift::firstOrCreate(['slug' => 'manana'], ['name' => 'Mañana', 'active' => true]);
+        Shift::firstOrCreate(['slug' => 'tarde'], ['name' => 'Tarde', 'active' => true]);
+
+        $teacher = Teacher::create([
+            'dni' => '25999888',
+            'last_name' => 'Salazar',
+            'first_name' => 'Roberto',
+            'specialty_area' => 'Electrónica Industrial',
+            'active' => true,
+        ]);
+
+        TeacherAttendance::create([
+            'teacher_id' => $teacher->id,
+            'shift_id' => $shiftManana->id,
+            'recorded_by' => $director->id,
+            'date' => now()->toDateString(),
+            'status' => 'presente',
+            'observation' => 'Dictado de laboratorio',
+        ]);
+
+        $this->actingAs($director)
+            ->get(route('director.dashboard'))
+            ->assertOk()
+            ->assertSee('Asistencia docente del día')
+            ->assertSee('SALAZAR, Roberto')
+            ->assertSee('Electrónica Industrial')
+            ->assertSee('Dictado de laboratorio')
+            ->assertSee('Asistencia tomada (1)');
+
+        $this->actingAs($this->operador)
+            ->get(route('operator.home'))
+            ->assertOk()
+            ->assertSee('Asistencia docente del día')
+            ->assertSee('SALAZAR, Roberto');
     }
 }

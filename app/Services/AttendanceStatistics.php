@@ -8,6 +8,8 @@ use App\Models\Attendance;
 use App\Models\Course;
 use App\Models\Justification;
 use App\Models\Scope;
+use App\Models\Shift;
+use App\Models\Teacher;
 use App\Models\TeacherAttendance;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -84,6 +86,67 @@ class AttendanceStatistics
             'date' => $today,
             'students' => $students,
             'teachers' => $teachers,
+        ];
+    }
+
+    /**
+     * Resumen detallado de la asistencia docente del día actual:
+     * totales por estado, estado por turno (tomada vs pendiente) y listado nominal del día.
+     */
+    public function todayTeacherSummary(): array
+    {
+        $today = now()->toDateString();
+        $activeTeachersCount = Teacher::active()->count();
+        $shifts = Shift::active()->ordered()->get();
+
+        $records = TeacherAttendance::query()
+            ->where('date', $today)
+            ->with(['teacher', 'shift', 'activity', 'recorder'])
+            ->get()
+            ->sortBy(fn (TeacherAttendance $ta) => sprintf(
+                '%03d-%s-%s',
+                $ta->shift_id ?? 999,
+                $ta->teacher?->last_name ?? '',
+                $ta->teacher?->first_name ?? ''
+            ))
+            ->values();
+
+        $counts = [];
+        foreach (AttendanceStatus::cases() as $status) {
+            $counts[$status->value] = 0;
+        }
+        foreach ($records as $rec) {
+            $val = $rec->status?->value ?? (string) $rec->status;
+            if (isset($counts[$val])) {
+                $counts[$val]++;
+            }
+        }
+        $counts['total'] = $records->count();
+
+        $byShift = $shifts->map(function (Shift $shift) use ($records, $activeTeachersCount) {
+            $shiftRecords = $records->where('shift_id', $shift->id);
+            $recordedCount = $shiftRecords->count();
+
+            return [
+                'shift_id' => $shift->id,
+                'shift_name' => $shift->name,
+                'taken' => $recordedCount > 0,
+                'recorded' => $recordedCount,
+                'total_teachers' => $activeTeachersCount,
+                'presente' => $shiftRecords->filter(fn ($r) => $r->status === AttendanceStatus::Presente)->count(),
+                'ausente' => $shiftRecords->filter(fn ($r) => $r->status === AttendanceStatus::Ausente)->count(),
+                'tardanza' => $shiftRecords->filter(fn ($r) => $r->status === AttendanceStatus::Tardanza)->count(),
+                'media_falta' => $shiftRecords->filter(fn ($r) => $r->status === AttendanceStatus::MediaFalta)->count(),
+                'justificada' => $shiftRecords->filter(fn ($r) => $r->status === AttendanceStatus::Justificada)->count(),
+            ];
+        })->values();
+
+        return [
+            'date' => $today,
+            'active_teachers' => $activeTeachersCount,
+            'counts' => $counts,
+            'by_shift' => $byShift,
+            'records' => $records,
         ];
     }
 

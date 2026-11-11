@@ -89,6 +89,9 @@
         </div>
     </div>
 
+    {{-- Bloque 1.5: Vista de Asistencia Docente del Día --}}
+    @include('partials.teacher-attendance-today', ['teacherToday' => $teacherToday ?? null])
+
     {{-- Bloque 2: Tarjetas acumuladas del período filtrado (SINIDE) --}}
     <div class="mb-3 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
         @php
