@@ -17,31 +17,37 @@
     <style>
         [x-cloak]{display:none !important}
         @media print { @page { size: landscape; margin: 8mm } }
-        .eet-navbar { font-size: 13px; line-height: 1.25; }
+        .eet-navbar {
+            font-size: 13px;
+            line-height: 1.25;
+            background-color: rgba(17, 19, 24, 0.97);
+            border-bottom: 2px solid #dc2626;
+            box-shadow: 0 1px 0 0 rgba(140, 240, 100, 0.25), 0 8px 20px -4px rgba(0, 0, 0, 0.45);
+        }
         .eet-navbar .eet-nav-item {
             display: inline-flex; align-items: center; gap: 0.3rem;
             white-space: nowrap; flex-shrink: 0;
             padding: 0.375rem 0.55rem; border-radius: 0.375rem;
-            font-size: 12.5px; font-weight: 500; line-height: 1.2;
+            font-size: 12.5px; font-weight: 600; line-height: 1.2;
             transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
         }
         @media (min-width: 1280px) {
             .eet-navbar .eet-nav-item { padding: 0.4rem 0.7rem; font-size: 13px; gap: 0.35rem; }
         }
         .eet-navbar .eet-nav-item-active {
-            background-color: rgba(30, 41, 59, 0.95); color: #fcd34d;
-            box-shadow: inset 0 -2px 0 0 #f59e0b;
+            background-color: rgba(220, 38, 38, 0.20); color: #8cf064;
+            box-shadow: inset 0 -2px 0 0 #dc2626;
         }
         .eet-navbar .eet-nav-item-idle { color: #e2e8f0; }
-        .eet-navbar .eet-nav-item-idle:hover { background-color: rgba(30, 41, 59, 0.8); color: #ffffff; }
+        .eet-navbar .eet-nav-item-idle:hover { background-color: rgba(255, 255, 255, 0.08); color: #8cf064; }
         .eet-navbar .eet-dropdown-link {
             display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
             padding: 0.5rem 0.875rem; font-size: 12.5px; line-height: 1.3;
             color: #e2e8f0; white-space: nowrap;
             transition: background-color 120ms ease, color 120ms ease, padding-left 120ms ease;
         }
-        .eet-navbar .eet-dropdown-link:hover { background-color: #334155; color: #ffffff; padding-left: 1rem; }
-        .eet-navbar .eet-dropdown-link-active { background-color: rgba(245, 158, 11, 0.14); color: #fcd34d; font-weight: 600; }
+        .eet-navbar .eet-dropdown-link:hover { background-color: rgba(220, 38, 38, 0.16); color: #8cf064; padding-left: 1rem; }
+        .eet-navbar .eet-dropdown-link-active { background-color: rgba(220, 38, 38, 0.24); color: #8cf064; font-weight: 600; }
     </style>
 </head>
 <body class="flex min-h-screen flex-col text-slate-800 antialiased">
@@ -55,36 +61,41 @@
          }"
          @click.outside="activeMenu = null"
          @keydown.escape.window="activeMenu = null; mobileOpen = false"
-         class="eet-navbar sticky top-0 z-40 border-b border-slate-800 bg-slate-900/95 text-slate-100 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-slate-900/90 print:hidden">
+         class="eet-navbar sticky top-0 z-40 text-slate-100 backdrop-blur print:hidden">
         <div class="mx-auto max-w-[1440px] px-3 sm:px-5">
-            <div class="flex h-14 items-center justify-between gap-4">
+            <div class="flex h-14 items-center justify-between gap-3">
 
-                {{-- Marca Institucional + Navegación Principal --}}
+                {{-- Marca Institucional (Escudo sin fondo blanco + Nombre) + Navegación por Rol --}}
                 <div class="flex shrink-0 items-center gap-2 xl:gap-3">
                     <a href="{{ route('home') }}"
-                       class="group flex shrink-0 items-center gap-2 rounded-md py-1 pr-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">
-                        <span class="shrink-0 whitespace-nowrap rounded bg-amber-500 px-2.5 py-1 text-[11px] font-extrabold uppercase leading-none tracking-wide text-slate-950 shadow-sm transition group-hover:bg-amber-400">
-                            EET N° 2
-                        </span>
-                        <span class="hidden flex-col leading-tight 2xl:flex">
-                            <span class="whitespace-nowrap text-[12px] font-bold text-white group-hover:text-amber-300">Prof. J. R. Salazar</span>
-                            <span class="whitespace-nowrap text-[10px] font-medium text-slate-400">Sistema de Asistencia</span>
+                       class="group flex shrink-0 items-center gap-2.5 rounded-md py-1 pr-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8cf064]">
+                        <img src="{{ asset('icons/logo-eet2.png') }}"
+                             alt="Escudo EET N° 2"
+                             width="36" height="44"
+                             class="h-10 w-auto shrink-0 object-contain drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)] transition-transform duration-150 group-hover:scale-105">
+                        <span class="flex flex-col leading-tight">
+                            <span class="whitespace-nowrap text-[13px] font-extrabold tracking-wide text-white transition group-hover:text-[#8cf064]">
+                                EET N° 2
+                            </span>
+                            <span class="hidden whitespace-nowrap text-[10.5px] font-semibold text-[#8cf064] sm:block">
+                                Prof. Jesús Raúl Salazar
+                            </span>
                         </span>
                     </a>
 
                     @auth
                         @php $u = auth()->user(); @endphp
-                        <div class="hidden h-5 w-px shrink-0 bg-slate-800 lg:block" aria-hidden="true"></div>
+                        <div class="hidden h-6 w-px shrink-0 bg-slate-700/80 lg:block" aria-hidden="true"></div>
 
                         <div class="hidden shrink-0 items-center gap-1 lg:flex">
-                            {{-- Dashboard --}}
+                            {{-- Dashboard (exclusivo de cada rol) --}}
                             <a href="{{ route('home') }}"
                                @mouseenter="activeMenu = null"
                                class="eet-nav-item {{ request()->routeIs('director.dashboard', 'operator.home', 'docente.home') ? 'eet-nav-item-active' : 'eet-nav-item-idle' }}">
                                 <span>Dashboard</span>
                             </a>
 
-                            {{-- Amonestaciones (Disciplina) --}}
+                            {{-- Amonestaciones (Disciplina: Director, Preceptor/Operador y Docente según Policy) --}}
                             @can('viewAny', \App\Models\DisciplinaryRecord::class)
                                 <a href="{{ route('disciplinary.index') }}"
                                    @mouseenter="activeMenu = null"
@@ -93,17 +104,17 @@
                                 </a>
                             @endcan
 
-                            {{-- Programa QR (Quiero Regresar) --}}
+                            {{-- Programa QR (Quiero Regresar: exclusivo Director y Preceptor/Operador; oculto para Docente) --}}
                             @can('viewAny', \App\Models\QrIntervention::class)
                                 <a href="{{ route('qr.index') }}"
                                    @mouseenter="activeMenu = null"
                                    class="eet-nav-item {{ request()->routeIs('qr.*') ? 'eet-nav-item-active' : 'eet-nav-item-idle' }}">
-                                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></span>
+                                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-[#8cf064]" aria-hidden="true"></span>
                                     <span>Programa QR</span>
                                 </a>
                             @endcan
 
-                            {{-- Asistencia --}}
+                            {{-- Asistencia (Exclusivo Director y Preceptor/Operador) --}}
                             @if ($u->isDirector() || $u->isOperador())
                                 <div class="relative shrink-0" @mouseenter="hoverMenu('attendance')">
                                     <button type="button"
@@ -112,7 +123,7 @@
                                             class="eet-nav-item {{ request()->routeIs('attendance.*') ? 'eet-nav-item-active' : 'eet-nav-item-idle' }}">
                                         <span>Asistencia</span>
                                         <span class="text-[10px] opacity-75 transition-transform duration-150"
-                                              :class="activeMenu === 'attendance' ? 'rotate-180 text-amber-300' : ''">▾</span>
+                                              :class="activeMenu === 'attendance' ? 'rotate-180 text-[#8cf064]' : ''">▾</span>
                                     </button>
                                     <div x-show="activeMenu === 'attendance'" x-cloak
                                          x-transition:enter="transition ease-out duration-150"
@@ -121,7 +132,7 @@
                                          x-transition:leave="transition ease-in duration-100"
                                          x-transition:leave-start="opacity-100 translate-y-0"
                                          x-transition:leave-end="opacity-0 translate-y-1"
-                                         class="absolute left-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-slate-700 bg-slate-800 py-1.5 shadow-xl">
+                                         class="absolute left-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-[#2b303c] bg-[#161922] py-1.5 shadow-xl">
                                         @if ($u->isOperador())
                                             <a href="{{ route('operator.home') }}"
                                                class="eet-dropdown-link {{ request()->routeIs('operator.home') ? 'eet-dropdown-link-active' : '' }}">
@@ -140,7 +151,7 @@
                                            class="eet-dropdown-link {{ request()->routeIs('attendance.teachers.*') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Asistencia de Docentes</span>
                                         </a>
-                                        <div class="my-1 border-t border-slate-700/80"></div>
+                                        <div class="my-1 border-t border-white/10"></div>
                                         <a href="{{ route('attendance.consult') }}"
                                            class="eet-dropdown-link {{ request()->routeIs('attendance.consult') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Consultar asistencias</span>
@@ -152,7 +163,7 @@
                                     </div>
                                 </div>
 
-                                {{-- Reportes --}}
+                                {{-- Reportes (Exclusivo Director y Preceptor/Operador) --}}
                                 <div class="relative shrink-0" @mouseenter="hoverMenu('reports')">
                                     <button type="button"
                                             @click="toggleMenu('reports')"
@@ -160,7 +171,7 @@
                                             class="eet-nav-item {{ request()->routeIs('reports.*') ? 'eet-nav-item-active' : 'eet-nav-item-idle' }}">
                                         <span>Reportes</span>
                                         <span class="text-[10px] opacity-75 transition-transform duration-150"
-                                              :class="activeMenu === 'reports' ? 'rotate-180 text-amber-300' : ''">▾</span>
+                                              :class="activeMenu === 'reports' ? 'rotate-180 text-[#8cf064]' : ''">▾</span>
                                     </button>
                                     <div x-show="activeMenu === 'reports'" x-cloak
                                          x-transition:enter="transition ease-out duration-150"
@@ -169,7 +180,7 @@
                                          x-transition:leave="transition ease-in duration-100"
                                          x-transition:leave-start="opacity-100 translate-y-0"
                                          x-transition:leave-end="opacity-0 translate-y-1"
-                                         class="absolute left-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-slate-700 bg-slate-800 py-1.5 shadow-xl">
+                                         class="absolute left-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-[#2b303c] bg-[#161922] py-1.5 shadow-xl">
                                         <a href="{{ route('reports.index') }}"
                                            class="eet-dropdown-link {{ request()->routeIs('reports.index') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Consulta histórica y exportaciones</span>
@@ -187,16 +198,16 @@
                                             <span>Ficha individual del estudiante</span>
                                         </a>
                                         @if ($u->isDirector())
-                                            <div class="my-1 border-t border-slate-700/80"></div>
+                                            <div class="my-1 border-t border-white/10"></div>
                                             <a href="{{ route('director.audit.index') }}"
-                                               class="eet-dropdown-link text-amber-300 {{ request()->routeIs('director.audit.index') ? 'eet-dropdown-link-active' : '' }}">
+                                               class="eet-dropdown-link text-[#8cf064] {{ request()->routeIs('director.audit.index') ? 'eet-dropdown-link-active' : '' }}">
                                                 <span>Auditoría y Certificados Médicos</span>
                                             </a>
                                         @endif
                                     </div>
                                 </div>
 
-                                {{-- Personas --}}
+                                {{-- Personas (Exclusivo Director y Preceptor/Operador) --}}
                                 <div class="relative shrink-0" @mouseenter="hoverMenu('people')">
                                     <button type="button"
                                             @click="toggleMenu('people')"
@@ -204,7 +215,7 @@
                                             class="eet-nav-item {{ request()->routeIs('people.*', 'roster.*') ? 'eet-nav-item-active' : 'eet-nav-item-idle' }}">
                                         <span>Personas</span>
                                         <span class="text-[10px] opacity-75 transition-transform duration-150"
-                                              :class="activeMenu === 'people' ? 'rotate-180 text-amber-300' : ''">▾</span>
+                                              :class="activeMenu === 'people' ? 'rotate-180 text-[#8cf064]' : ''">▾</span>
                                     </button>
                                     <div x-show="activeMenu === 'people'" x-cloak
                                          x-transition:enter="transition ease-out duration-150"
@@ -213,7 +224,7 @@
                                          x-transition:leave="transition ease-in duration-100"
                                          x-transition:leave-start="opacity-100 translate-y-0"
                                          x-transition:leave-end="opacity-0 translate-y-1"
-                                         class="absolute left-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-slate-700 bg-slate-800 py-1.5 shadow-xl">
+                                         class="absolute left-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-[#2b303c] bg-[#161922] py-1.5 shadow-xl">
                                         <a href="{{ route('people.students.index') }}"
                                            class="eet-dropdown-link {{ request()->routeIs('people.students.*') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Estudiantes (Padrón SINIDE)</span>
@@ -228,7 +239,7 @@
                                            class="eet-dropdown-link {{ request()->routeIs('people.import.*') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Importar Excel / CSV (9 pasos)</span>
                                         </a>
-                                        <div class="my-1 border-t border-slate-700/80"></div>
+                                        <div class="my-1 border-t border-white/10"></div>
                                         <a href="{{ route('roster.landing') }}"
                                            class="eet-dropdown-link {{ request()->routeIs('roster.*') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Nómina rápida por curso</span>
@@ -237,6 +248,7 @@
                                 </div>
                             @endif
 
+                            {{-- Secciones exclusivas de Dirección General --}}
                             @if ($u->isDirector())
                                 {{-- Organización --}}
                                 <div class="relative shrink-0" @mouseenter="hoverMenu('organization')">
@@ -246,7 +258,7 @@
                                             class="eet-nav-item {{ request()->routeIs('organization.*', 'director.calendar.*') ? 'eet-nav-item-active' : 'eet-nav-item-idle' }}">
                                         <span>Organización</span>
                                         <span class="text-[10px] opacity-75 transition-transform duration-150"
-                                              :class="activeMenu === 'organization' ? 'rotate-180 text-amber-300' : ''">▾</span>
+                                              :class="activeMenu === 'organization' ? 'rotate-180 text-[#8cf064]' : ''">▾</span>
                                     </button>
                                     <div x-show="activeMenu === 'organization'" x-cloak
                                          x-transition:enter="transition ease-out duration-150"
@@ -255,7 +267,7 @@
                                          x-transition:leave="transition ease-in duration-100"
                                          x-transition:leave-start="opacity-100 translate-y-0"
                                          x-transition:leave-end="opacity-0 translate-y-1"
-                                         class="absolute left-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-slate-700 bg-slate-800 py-1.5 shadow-xl">
+                                         class="absolute left-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-[#2b303c] bg-[#161922] py-1.5 shadow-xl">
                                         <a href="{{ route('organization.courses.index') }}"
                                            class="eet-dropdown-link {{ request()->routeIs('organization.courses.*') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Cursos y Divisiones</span>
@@ -276,7 +288,7 @@
                                            class="eet-dropdown-link {{ request()->routeIs('organization.shifts.*') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Turnos</span>
                                         </a>
-                                        <div class="my-1 border-t border-slate-700/80"></div>
+                                        <div class="my-1 border-t border-white/10"></div>
                                         <a href="{{ route('director.calendar.index') }}"
                                            class="eet-dropdown-link {{ request()->routeIs('director.calendar.*') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Calendario Escolar (Feriados)</span>
@@ -299,7 +311,7 @@
                                             class="eet-nav-item {{ request()->routeIs('director.users.*', 'director.audit.*', 'director.audit-logs.*') ? 'eet-nav-item-active' : 'eet-nav-item-idle' }}">
                                         <span>Administración</span>
                                         <span class="text-[10px] opacity-75 transition-transform duration-150"
-                                              :class="activeMenu === 'admin' ? 'rotate-180 text-amber-300' : ''">▾</span>
+                                              :class="activeMenu === 'admin' ? 'rotate-180 text-[#8cf064]' : ''">▾</span>
                                     </button>
                                     <div x-show="activeMenu === 'admin'" x-cloak
                                          x-transition:enter="transition ease-out duration-150"
@@ -308,7 +320,7 @@
                                          x-transition:leave="transition ease-in duration-100"
                                          x-transition:leave-start="opacity-100 translate-y-0"
                                          x-transition:leave-end="opacity-0 translate-y-1"
-                                         class="absolute right-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-slate-700 bg-slate-800 py-1.5 shadow-xl">
+                                         class="absolute right-0 z-50 mt-1.5 w-64 overflow-hidden rounded-lg border border-[#2b303c] bg-[#161922] py-1.5 shadow-xl">
                                         <a href="{{ route('director.users.index') }}"
                                            class="eet-dropdown-link {{ request()->routeIs('director.users.*') ? 'eet-dropdown-link-active' : '' }}">
                                             <span>Usuarios, roles y credenciales</span>
@@ -399,7 +411,10 @@
     </main>
 
     <footer class="border-t border-slate-200 bg-white py-3 text-center text-xs text-slate-500 print:hidden">
-        EET N° 2 "Prof. Jesús Raúl Salazar" — Sistema de Asistencia
+        <div class="inline-flex items-center justify-center gap-2">
+            <img src="{{ asset('icons/logo-eet2.png') }}" alt="" class="h-4 w-auto object-contain">
+            <span>EET N° 2 "Prof. Jesús Raúl Salazar" — Sistema de Asistencia</span>
+        </div>
     </footer>
 
 @stack('scripts')

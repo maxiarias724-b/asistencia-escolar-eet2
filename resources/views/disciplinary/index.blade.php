@@ -83,14 +83,16 @@
                        class="mt-1 block w-full rounded border border-slate-300 px-2.5 py-1.5 text-sm font-normal">
             </label>
 
-            <label class="block text-xs font-semibold uppercase text-slate-600">
-                Estado
-                <select name="active" class="mt-1 block w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-normal">
-                    <option value="" @selected($filters['active'] === '')>Todas</option>
-                    <option value="1" @selected($filters['active'] === '1')>Vigentes</option>
-                    <option value="0" @selected($filters['active'] === '0')>Dadas de baja</option>
-                </select>
-            </label>
+            @if ($u->isDirector())
+                <label class="block text-xs font-semibold uppercase text-slate-600">
+                    Estado
+                    <select name="active" class="mt-1 block w-full rounded border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-normal">
+                        <option value="" @selected($filters['active'] === '')>Todas</option>
+                        <option value="1" @selected($filters['active'] === '1')>Vigentes</option>
+                        <option value="0" @selected($filters['active'] === '0')>Dadas de baja</option>
+                    </select>
+                </label>
+            @endif
         </div>
 
         <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs">

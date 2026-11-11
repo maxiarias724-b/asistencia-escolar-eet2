@@ -11,7 +11,7 @@
  *
  * Subir la versión de CACHE_VERSION cuando se modifique este archivo o la lista PRECACHE.
  */
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = 'eet2-static-' + CACHE_VERSION;
 
 // El scope del SW es la carpeta donde está este archivo (funciona en la raíz o en subcarpetas, ej. XAMPP).
@@ -21,6 +21,7 @@ const OFFLINE_URL = new URL('offline.html', SCOPE_URL).href;
 
 const PRECACHE = [
     OFFLINE_URL,
+    new URL('icons/logo-eet2.png', SCOPE_URL).href,
     new URL('icons/icon-192.png', SCOPE_URL).href,
     new URL('icons/icon-512.png', SCOPE_URL).href,
     new URL('css/theme.css', SCOPE_URL).href,

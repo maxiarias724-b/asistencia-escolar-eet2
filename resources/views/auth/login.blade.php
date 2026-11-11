@@ -20,10 +20,13 @@
     </div>
 
     <div class="mx-auto w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-        <div class="bg-slate-900 px-6 py-5 text-center text-white">
-            <span class="inline-block rounded bg-amber-500 px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wide text-slate-950">EET N° 2</span>
-            <h1 class="mt-2 text-lg font-bold">Prof. Jesús Raúl Salazar</h1>
-            <p class="text-xs text-slate-400">San Salvador de Jujuy · Nivel Secundario Técnico</p>
+        <div class="border-b-2 border-[#dc2626] bg-[#111318] px-6 py-5 text-center text-white">
+            <img src="{{ asset('icons/logo-eet2.png') }}"
+                 alt="Escudo EET N° 2 Prof. Jesús Raúl Salazar"
+                 class="mx-auto mb-2.5 h-20 w-auto object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.65)]">
+            <span class="inline-block rounded bg-[#dc2626] px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wide text-white ring-1 ring-[#8cf064]/60">EET N° 2</span>
+            <h1 class="mt-2 text-lg font-bold text-[#8cf064]">Prof. Jesús Raúl Salazar</h1>
+            <p class="text-xs text-slate-300">San Salvador de Jujuy · Nivel Secundario Técnico</p>
         </div>
 
         <div class="p-6 sm:p-8">
@@ -33,14 +36,14 @@
                     <label for="username" class="mb-1 block text-sm font-medium text-slate-700">Usuario o correo institucional</label>
                     <input id="username" name="username" value="{{ old('username') }}" required autofocus autocomplete="username"
                            placeholder="Ej.: admin o admin@eet2jujuy.edu.ar"
-                           class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-[#dc2626] focus:outline-none">
                     @error('username') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Contraseña</label>
                     <input id="password" type="password" name="password" required autocomplete="current-password"
-                           class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-[#dc2626] focus:outline-none">
                     @error('password') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
 
@@ -49,7 +52,7 @@
                     Mantener sesión iniciada en este equipo
                 </label>
 
-                <button class="w-full rounded-md bg-slate-900 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                <button class="w-full rounded-md bg-[#dc2626] py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#b91c1c]">
                     Ingresar al sistema
                 </button>
             </form>

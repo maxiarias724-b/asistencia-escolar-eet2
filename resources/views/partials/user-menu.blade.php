@@ -14,11 +14,11 @@
     <button type="button" @click="open = !open" :aria-expanded="open.toString()" aria-haspopup="true"
             aria-label="Menú de usuario"
             title="{{ $menuUser->name }} ({{ $menuUser->role->label() }}) — Abrir menú"
-            class="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-slate-700 bg-slate-800/95 px-2.5 text-slate-200 shadow-sm transition hover:border-slate-600 hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[11px] font-extrabold text-slate-950">
+            class="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#2b303c] bg-[#1a1e29] px-2.5 text-slate-200 shadow-sm transition hover:border-[#8cf064]/50 hover:bg-[#222736] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8cf064]">
+        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#dc2626] text-[11px] font-extrabold text-white ring-1 ring-[#8cf064]/60">
             {{ mb_strtoupper(mb_substr($menuUser->name, 0, 1)) }}
         </span>
-        <span class="hidden whitespace-nowrap rounded bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-amber-300 sm:inline">
+        <span class="hidden whitespace-nowrap rounded bg-[#8cf064]/15 px-1.5 py-0.5 text-[11px] font-semibold text-[#8cf064] sm:inline">
             {{ $menuUser->role->label() }}
         </span>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -28,16 +28,16 @@
 
     {{-- Panel desplegable --}}
     <div x-show="open" x-cloak x-transition.origin.top.right role="menu"
-         class="absolute right-0 z-50 mt-2 w-72 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-lg border border-slate-700 bg-slate-800 text-slate-100 shadow-xl">
+         class="absolute right-0 z-50 mt-2 w-72 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-lg border border-[#2b303c] bg-[#161922] text-slate-100 shadow-xl">
 
         {{-- Cabecera con el usuario autenticado --}}
-        <div class="flex items-center gap-3 border-b border-slate-700 bg-slate-800/90 px-4 py-3">
-            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-500 text-sm font-extrabold text-slate-950">
+        <div class="flex items-center gap-3 border-b border-[#2b303c] bg-[#111318] px-4 py-3">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dc2626] text-sm font-extrabold text-white ring-1 ring-[#8cf064]/60">
                 {{ mb_strtoupper(mb_substr($menuUser->name, 0, 1)) }}
             </span>
             <div class="min-w-0">
                 <p class="truncate text-sm font-semibold text-white">{{ $menuUser->name }}</p>
-                <p class="truncate text-xs text-amber-300">{{ $menuUser->role->label() }} · {{ $menuUser->username }}</p>
+                <p class="truncate text-xs text-[#8cf064]">{{ $menuUser->role->label() }} · {{ $menuUser->username }}</p>
             </div>
         </div>
 

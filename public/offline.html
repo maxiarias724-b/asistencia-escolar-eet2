@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#111318">
     <title>Sin conexión · EET N° 2</title>
     <style>
         :root { color-scheme: light dark; }
@@ -11,40 +11,43 @@
         body {
             margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
             padding: 1rem; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            background: #f1f5f9; color: #1e293b;
+            background: #f3f4f6; color: #111318;
         }
         .card {
             width: 100%; max-width: 26rem; overflow: hidden; border-radius: .75rem;
-            border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 10px 25px rgba(15, 23, 42, .12);
+            border: 1px solid #e5e7eb; background: #fff; box-shadow: 0 10px 25px rgba(17, 19, 24, .14);
         }
-        .head { background: #0f172a; color: #fff; padding: 1.25rem 1.5rem; text-align: center; }
+        .head { background: #111318; border-bottom: 2px solid #dc2626; color: #fff; padding: 1.25rem 1.5rem; text-align: center; }
+        .shield { height: 4rem; width: auto; display: block; margin: 0 auto .6rem; object-fit: contain; }
         .badge {
-            display: inline-block; border-radius: .25rem; background: #f59e0b; color: #020617;
+            display: inline-block; border-radius: .25rem; background: #dc2626; color: #ffffff;
+            border: 1px solid rgba(140, 240, 100, .6);
             padding: .15rem .6rem; font-size: .75rem; font-weight: 800; text-transform: uppercase;
         }
-        .head h1 { margin: .5rem 0 0; font-size: 1.05rem; }
+        .head h1 { margin: .45rem 0 0; font-size: 1rem; color: #8cf064; }
         .body { padding: 1.5rem; text-align: center; }
         .body h2 { margin: 0 0 .5rem; font-size: 1.15rem; }
-        .body p { margin: 0 0 1rem; font-size: .9rem; line-height: 1.5; color: #475569; }
+        .body p { margin: 0 0 1rem; font-size: .9rem; line-height: 1.5; color: #4b5563; }
         button {
-            width: 100%; cursor: pointer; border: 0; border-radius: .375rem; background: #0f172a; color: #fff;
+            width: 100%; cursor: pointer; border: 0; border-radius: .375rem; background: #dc2626; color: #fff;
             padding: .7rem 1rem; font-size: .9rem; font-weight: 600;
         }
-        button:hover { background: #1e293b; }
+        button:hover { background: #b91c1c; }
         @media (prefers-color-scheme: dark) {
-            body { background: #0b1120; color: #f1f5f9; }
-            .card { background: #131c30; border-color: #2b3a55; }
-            .body p { color: #94a3b8; }
-            button { background: #334155; }
-            button:hover { background: #475569; }
+            body { background: #0c0e12; color: #f3f4f6; }
+            .card { background: #141820; border-color: #282f3d; }
+            .body p { color: #9ca3af; }
+            button { background: #dc2626; }
+            button:hover { background: #b91c1c; }
         }
     </style>
 </head>
 <body>
     <main class="card">
         <div class="head">
+            <img src="icons/logo-eet2.png" alt="Escudo EET N° 2" class="shield">
             <span class="badge">EET N° 2</span>
-            <h1>Sistema de Asistencia</h1>
+            <h1>Prof. Jesús Raúl Salazar · Sistema de Asistencia</h1>
         </div>
         <div class="body">
             <h2>Sin conexión a internet</h2>

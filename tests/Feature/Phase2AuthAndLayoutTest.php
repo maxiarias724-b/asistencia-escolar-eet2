@@ -112,4 +112,46 @@ class Phase2AuthAndLayoutTest extends TestCase
             ->assertOk()
             ->assertSee('Bitácora de operaciones');
     }
+
+    public function test_horizontal_menu_shows_only_allowed_options_per_role_and_school_shield_logo(): void
+    {
+        $director = User::factory()->director()->create();
+        $operador = User::factory()->create(); // operador
+        $docente = User::factory()->docente()->create();
+
+        // Director: ve todas las secciones directivas y el escudo institucional, pero no "Mis cursos asignados"
+        $this->actingAs($director)->get(route('director.dashboard'))
+            ->assertOk()
+            ->assertSee('icons/logo-eet2.png', false)
+            ->assertSee('Organización')
+            ->assertSee('Preceptores')
+            ->assertSee('Administración')
+            ->assertSee('Auditoría y Certificados Médicos')
+            ->assertDontSee('Mis cursos asignados');
+
+        // Preceptor / Operador: solo ve sus módulos permitidos y NO ve secciones directivas exclusivas
+        $this->actingAs($operador)->get(route('operator.home'))
+            ->assertOk()
+            ->assertSee('icons/logo-eet2.png', false)
+            ->assertSee('Amonestaciones')
+            ->assertSee('Programa QR')
+            ->assertSee('Asistencia')
+            ->assertSee('Reportes')
+            ->assertSee('Personas')
+            ->assertDontSee('Organización')
+            ->assertDontSee('Administración')
+            ->assertDontSee('Auditoría y Certificados Médicos')
+            ->assertDontSee('Bitácora de operaciones');
+
+        // Docente: solo ve Dashboard y Amonestaciones (solo lectura); NO ve Programa QR ni menús operativos/directivos
+        $this->actingAs($docente)->get(route('docente.home'))
+            ->assertOk()
+            ->assertSee('icons/logo-eet2.png', false)
+            ->assertSee('Amonestaciones')
+            ->assertDontSee('Programa QR')
+            ->assertDontSee('Toma diaria (Estudiantes)')
+            ->assertDontSee('Estudiantes (Padrón SINIDE)')
+            ->assertDontSee('Organización')
+            ->assertDontSee('Administración');
+    }
 }
