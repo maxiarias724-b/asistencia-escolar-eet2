@@ -11,6 +11,66 @@
 /* ---------- Tamaño de texto (personalización) ---------- */
 html[data-font="lg"] { font-size: 112.5%; }
 
+/* La barra superior mantiene métricas fijas en px para no desbordar ni superponer textos */
+.eet-navbar {
+    font-size: 13px;
+    line-height: 1.25;
+}
+.eet-navbar .eet-nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+@media (min-width: 1280px) {
+    .eet-navbar .eet-nav-item {
+        padding: 0.4rem 0.65rem;
+        font-size: 12.75px;
+        gap: 0.35rem;
+    }
+}
+.eet-navbar .eet-nav-item-active {
+    background-color: rgba(30, 41, 59, 0.95);
+    color: #fcd34d;
+    box-shadow: inset 0 -2px 0 0 #f59e0b;
+}
+.eet-navbar .eet-nav-item-idle {
+    color: #e2e8f0;
+}
+.eet-navbar .eet-nav-item-idle:hover {
+    background-color: rgba(30, 41, 59, 0.8);
+    color: #ffffff;
+}
+.eet-navbar .eet-dropdown-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    font-size: 12.5px;
+    line-height: 1.3;
+    color: #e2e8f0;
+    white-space: nowrap;
+    transition: background-color 120ms ease, color 120ms ease, padding-left 120ms ease;
+}
+.eet-navbar .eet-dropdown-link:hover {
+    background-color: #334155;
+    color: #ffffff;
+    padding-left: 1rem;
+}
+.eet-navbar .eet-dropdown-link-active {
+    background-color: rgba(245, 158, 11, 0.14);
+    color: #fcd34d;
+    font-weight: 600;
+}
+
 /* ---------- Controles del selector de apariencia ---------- */
 .eet-opt {
     display: block;

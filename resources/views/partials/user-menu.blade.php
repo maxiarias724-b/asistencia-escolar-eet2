@@ -23,8 +23,8 @@
     <div x-show="open" x-cloak x-transition.origin.top.right role="menu"
          class="absolute right-0 z-50 mt-2 w-72 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-lg border border-slate-700 bg-slate-800 text-slate-100 shadow-xl">
 
-        {{-- Cabecera con el usuario (en pantallas chicas el nombre no se ve en la barra) --}}
-        <div class="flex items-center gap-3 border-b border-slate-700 px-4 py-3 sm:hidden">
+        {{-- Cabecera con el usuario autenticado --}}
+        <div class="flex items-center gap-3 border-b border-slate-700 bg-slate-800/90 px-4 py-3">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-500 text-sm font-extrabold text-slate-950">
                 {{ mb_strtoupper(mb_substr($menuUser->name, 0, 1)) }}
             </span>
