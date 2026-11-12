@@ -143,6 +143,7 @@ class DailyStudentAttendanceController extends Controller
                 }
 
                 $newStatus = AttendanceStatus::from($rec['status']);
+                $normalizedObs = filled($rec['observation'] ?? null) ? trim((string) $rec['observation']) : null;
                 $existing = Attendance::query()
                     ->where('student_id', $studentId)
                     ->where('date', $date->toDateString())
@@ -153,6 +154,14 @@ class DailyStudentAttendanceController extends Controller
                 if ($existing?->status === AttendanceStatus::Justificada && $newStatus !== AttendanceStatus::Justificada) {
                     $existing->justification?->delete();
                 }
+
+                $hasRowChanged = ! $existing
+                    || $existing->status !== $newStatus
+                    || $existing->observation !== $normalizedObs;
+
+                $recorderUserId = ($hasRowChanged || ! $existing?->user_id)
+                    ? $request->user()->id
+                    : $existing->user_id;
 
                 Attendance::updateOrCreate(
                     [
@@ -165,9 +174,9 @@ class DailyStudentAttendanceController extends Controller
                         'scope_id' => $scope->id,
                         'activity_id' => $activityId,
                         'shift_id' => $shiftId,
-                        'user_id' => $request->user()->id,
+                        'user_id' => $recorderUserId,
                         'status' => $newStatus->value,
-                        'observation' => filled($rec['observation'] ?? null) ? trim((string) $rec['observation']) : null,
+                        'observation' => $normalizedObs,
                     ]
                 );
 

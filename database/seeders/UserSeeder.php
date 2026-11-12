@@ -60,6 +60,26 @@ class UserSeeder extends Seeder
             Role::Docente
         );
 
+        $maximo = User::updateOrCreate(['username' => 'usuario'], [
+            'first_name' => 'Maximo Alejandro',
+            'last_name' => 'Arias',
+            'name' => 'Maximo',
+            'email' => null,
+            'password' => '$2y$12$IBZ9riN0e/RNUXtdh156oenp4DwZKK5IFhKUJhyVtmtsns6YQrEmW',
+            'role' => Role::Operador,
+            'active' => true,
+        ]);
+
+        User::updateOrCreate(['username' => 'docente'], [
+            'first_name' => '',
+            'last_name' => 'rios',
+            'name' => 'Analia',
+            'email' => null,
+            'password' => '$2y$12$E503/9Omj2XRrs2eFNF3B.FR4RfiOG4TrvV3yu1X19oTW2O1jwUUu',
+            'role' => Role::Docente,
+            'active' => true,
+        ]);
+
         $scopeClases = Scope::where('slug', 'clase')->firstOrFail();
         $scopeEdFisica = Scope::where('slug', 'educacion_fisica')->firstOrFail();
         $scopeTaller = Scope::where('slug', 'taller')->firstOrFail();
@@ -67,6 +87,15 @@ class UserSeeder extends Seeder
         $this->assign($preceptor, $scopeClases, [[3, '1'], [4, '1'], [5, '1']]);
         $this->assign($edFisica, $scopeEdFisica, [[1, '1'], [2, '1'], [3, '1']]);
         $this->assign($taller, $scopeTaller, [[5, '1'], [5, '2'], [6, '1']]);
+        $this->assign($maximo, $scopeClases, [
+            [3, '1'],
+            [3, '2'],
+            [4, '1'],
+            [4, '2'],
+            [5, '1'],
+            [5, '2'],
+            [5, '3'],
+        ]);
     }
 
     private function createUser(string $username, string $firstName, string $lastName, string $email, Role $role): User

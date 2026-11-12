@@ -99,19 +99,40 @@ class TeacherAttendanceController extends Controller
 
         DB::transaction(function () use ($data, $date, $shiftId, $activityId, $request, &$savedCount) {
             foreach ($data['records'] as $rec) {
+                $teacherId = (int) $rec['teacher_id'];
                 $status = AttendanceStatus::from($rec['status']);
+                $normalizedObs = filled($rec['observation'] ?? null) ? trim((string) $rec['observation']) : null;
+
+                $existing = TeacherAttendance::query()
+                    ->where('teacher_id', $teacherId)
+                    ->where('date', $date->toDateString())
+                    ->where('shift_id', $shiftId)
+                    ->when(
+                        $activityId,
+                        fn ($query) => $query->where('activity_id', $activityId),
+                        fn ($query) => $query->whereNull('activity_id')
+                    )
+                    ->first();
+
+                $hasRowChanged = ! $existing
+                    || $existing->status !== $status
+                    || $existing->observation !== $normalizedObs;
+
+                $recorderUserId = ($hasRowChanged || ! $existing?->recorded_by)
+                    ? $request->user()->id
+                    : $existing->recorded_by;
 
                 TeacherAttendance::updateOrCreate(
                     [
-                        'teacher_id' => (int) $rec['teacher_id'],
+                        'teacher_id' => $teacherId,
                         'date' => $date->toDateString(),
                         'shift_id' => $shiftId,
                         'activity_id' => $activityId,
                     ],
                     [
-                        'recorded_by' => $request->user()->id,
+                        'recorded_by' => $recorderUserId,
                         'status' => $status->value,
-                        'observation' => filled($rec['observation'] ?? null) ? trim((string) $rec['observation']) : null,
+                        'observation' => $normalizedObs,
                     ]
                 );
 

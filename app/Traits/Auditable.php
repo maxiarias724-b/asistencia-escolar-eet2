@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\AuditLog;
+use App\Services\InstitutionalStateSyncService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Arr;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Registra automáticamente en `audit_logs` las operaciones `created`, `updated` y `deleted`
- * de cualquier modelo institucional, omitiendo campos sensibles (`password`, `remember_token`).
+ * de cualquier modelo institucional, omitiendo campos sensibles (`password`, `remember_token`),
+ * y programa la sincronización del estado institucional en `institutional_state.json`.
  */
 trait Auditable
 {
@@ -23,9 +25,14 @@ trait Auditable
     {
         static::created(function (Model $model): void {
             self::writeAuditLog($model, 'created', null, self::sanitizeAuditValues($model->getAttributes()));
+            app(InstitutionalStateSyncService::class)->scheduleExport();
         });
 
         static::updated(function (Model $model): void {
+            if ($model->getChanges() !== []) {
+                app(InstitutionalStateSyncService::class)->scheduleExport();
+            }
+
             $changes = self::sanitizeAuditValues($model->getChanges());
             if ($changes === []) {
                 return;
@@ -37,6 +44,7 @@ trait Auditable
 
         static::deleted(function (Model $model): void {
             self::writeAuditLog($model, 'deleted', self::sanitizeAuditValues($model->getOriginal()), null);
+            app(InstitutionalStateSyncService::class)->scheduleExport();
         });
     }
 

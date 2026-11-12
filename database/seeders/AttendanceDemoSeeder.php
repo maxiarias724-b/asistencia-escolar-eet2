@@ -70,7 +70,7 @@ class AttendanceDemoSeeder extends Seeder
                     $observation = 'Durante el día presentó dolores de cabeza y se tuvo que retirar a su casa';
                 }
 
-                $attendance = Attendance::updateOrCreate(
+                $attendance = Attendance::firstOrCreate(
                     ['student_id' => $student->id, 'date' => $day->toDateString(), 'activity_type' => $scope->slug],
                     [
                         'course_id' => $course->id,
@@ -110,7 +110,7 @@ class AttendanceDemoSeeder extends Seeder
                     default => AttendanceStatus::Ausente,
                 };
 
-                TeacherAttendance::updateOrCreate(
+                TeacherAttendance::firstOrCreate(
                     [
                         'teacher_id' => $teacher->id,
                         'date' => $day->toDateString(),
